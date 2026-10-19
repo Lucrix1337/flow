@@ -8,162 +8,271 @@
 <meta property="og:title" content="Flow — музыка с друзьями, синхронно">
 <meta property="og:description" content="Комната по коду, общий плейлист и звук у всех одновременно — с точностью до миллисекунд.">
 <meta property="og:image" content="img/room.webp">
+<meta name="theme-color" content="#0b0a10">
 <link rel="icon" href="img/icon.png">
+<link rel="stylesheet" href="onest.css">
 <link rel="stylesheet" href="emoji.css">
 <style>
-@font-face { font-family: Manrope; src: url(fonts/Manrope.ttf); font-weight: 200 800; font-display: swap; }
 @font-face { font-family: Syne; src: url(fonts/Syne.ttf); font-weight: 400 800; font-display: swap; }
 :root {
-  --bg: #07070d; --text: #f4f2ff; --muted: rgba(244, 242, 255, .62); --edge: rgba(255, 255, 255, .16);
-  --c1: 255, 170, 90; --c2: 236, 72, 153; --c3: 99, 102, 241;
-  --glass: linear-gradient(160deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .04));
-  --shine: inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -1px 0 rgba(255, 255, 255, .05);
+  --bg: #0b0a10; --bg-2: #121019; --text: #f3f1f8; --muted: #a9a6b8; --dim: #6f6c80;
+  --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .14); --surface: rgba(255, 255, 255, .035);
+  --a1: #ffb35c; --a2: #f2609c; --a3: #8b7bff;
+  --grad: linear-gradient(110deg, var(--a1), var(--a2));
+  --r: 24px;
 }
-* { box-sizing: border-box; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font: 500 16px/1.6 Manrope, "Noto Color Emoji", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-a { color: inherit; }
-.orbs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-.orbs i { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; animation: drift 22s ease-in-out infinite alternate; }
-.orbs i:nth-child(1) { width: 52vw; height: 52vw; left: -12vw; top: -16vw; background: rgb(var(--c1)); }
-.orbs i:nth-child(2) { width: 46vw; height: 46vw; right: -14vw; top: 10vh; background: rgb(var(--c2)); animation-delay: -7s; }
-.orbs i:nth-child(3) { width: 40vw; height: 40vw; left: 22vw; bottom: -20vw; background: rgb(var(--c3)); animation-delay: -13s; }
-@keyframes drift { to { transform: translate(6vw, 4vh) scale(1.12); } }
-.wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
-.glass { background: var(--glass); border: 1px solid var(--edge); box-shadow: var(--shine), 0 30px 70px rgba(0, 0, 0, .35); backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6); }
+body { background: var(--bg); color: var(--text); font: 400 17px/1.6 Onest, "Noto Color Emoji", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; height: auto; }
+.wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
 
-nav { position: sticky; top: 14px; z-index: 10; margin-top: 14px; display: flex; align-items: center; gap: 16px; padding: 10px 12px 10px 22px; border-radius: 999px; }
-.logo { font: 800 30px Syne; letter-spacing: -.06em; text-decoration: none; background: linear-gradient(110deg, rgb(var(--c1)), rgb(var(--c2))); -webkit-background-clip: text; background-clip: text; color: transparent; }
-nav .links { margin-left: auto; display: flex; gap: 22px; font-weight: 700; font-size: 14px; color: var(--muted); }
-nav .links a { text-decoration: none; transition: color .2s; }
+/* фон: одно мягкое тёплое свечение сверху и шум, без «пятен по всей странице» */
+.glow { position: absolute; inset: 0 0 auto; height: 900px; z-index: -1; pointer-events: none;
+  background: radial-gradient(60% 55% at 70% 0%, rgba(242, 96, 156, .22), transparent 70%), radial-gradient(45% 45% at 15% 10%, rgba(255, 179, 92, .18), transparent 70%); }
+
+/* навигация */
+nav { position: sticky; top: 0; z-index: 20; background: rgba(11, 10, 16, .72); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid var(--line); }
+nav .wrap { display: flex; align-items: center; gap: 32px; height: 68px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 800 26px/1 Syne; letter-spacing: -.05em; }
+.logo img { width: 30px; height: 30px; border-radius: 9px; }
+.logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 2px; }
+nav .links { display: flex; gap: 28px; font-size: 15px; color: var(--muted); }
 nav .links a:hover { color: var(--text); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 26px; border-radius: 999px; font-weight: 800; text-decoration: none; white-space: nowrap; transition: transform .15s, box-shadow .2s, filter .2s; }
-.btn:hover { transform: translateY(-2px); }
-.btn.primary { color: #1a1020; background: linear-gradient(120deg, rgb(var(--c1)), rgb(var(--c2))); box-shadow: 0 0 30px rgba(var(--c2), .45), inset 0 1px 0 rgba(255, 255, 255, .5); }
-.btn.primary:hover { box-shadow: 0 0 46px rgba(var(--c2), .65), inset 0 1px 0 rgba(255, 255, 255, .5); }
-.btn.sm { height: 40px; padding: 0 18px; font-size: 14px; }
-.btn svg { width: 20px; height: 20px; }
+nav .btn { margin-left: auto; }
 
-.hero { text-align: center; padding: 90px 0 40px; }
-.badge { display: inline-flex; gap: 8px; align-items: center; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--muted); }
-.badge b { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; }
-h1 { font-size: clamp(40px, 7vw, 84px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800; margin: 22px auto 0; max-width: 900px; }
-h1 em { font-style: normal; background: linear-gradient(110deg, rgb(var(--c1)), rgb(var(--c2)) 55%, rgb(var(--c3))); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 640px; margin: 22px auto 0; }
-.cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
-.cta .btn.ghost { color: var(--text); }
-.meta { margin-top: 14px; font-size: 13px; color: var(--muted); }
-.meta a { color: var(--text); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 14px; font-weight: 600; font-size: 16px; white-space: nowrap; transition: transform .15s, background .2s, box-shadow .2s; }
+.btn:hover { transform: translateY(-1px); }
+.btn svg { width: 19px; height: 19px; flex: none; }
+.btn.primary { color: #190d14; background: var(--grad); box-shadow: 0 8px 30px -8px rgba(242, 96, 156, .6), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.btn.primary:hover { box-shadow: 0 12px 38px -8px rgba(242, 96, 156, .8), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.btn.ghost { background: var(--surface); border: 1px solid var(--line-2); }
+.btn.ghost:hover { background: rgba(255, 255, 255, .07); }
+.btn.sm { height: 40px; padding: 0 16px; font-size: 15px; border-radius: 12px; }
 
-.shot { margin: 60px auto 0; padding: 10px; border-radius: 30px; max-width: 1040px; transform: perspective(1600px) rotateX(6deg); transition: transform .6s; }
-.shot:hover { transform: none; }
-.shot img { display: block; width: 100%; height: auto; border-radius: 22px; }
+/* первый экран */
+.hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 56px; align-items: center; padding: 84px 0 72px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: var(--muted); padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.eyebrow b { font-weight: 600; color: #171018; background: var(--grad); padding: 2px 9px; border-radius: 999px; font-size: 13px; }
+h1, h2 { text-wrap: balance; }
+h1 { font-size: clamp(42px, 5.6vw, 70px); line-height: 1.04; letter-spacing: -.035em; font-weight: 700; margin-top: 22px; }
+h1 .g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 19px; color: var(--muted); margin-top: 22px; max-width: 540px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
+.facts { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 26px; font-size: 14px; color: var(--dim); }
+.facts span { display: flex; align-items: center; gap: 7px; }
+.facts svg { width: 16px; height: 16px; color: var(--muted); }
+.facts a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 
-section { padding: 90px 0 0; }
-h2 { font-size: clamp(30px, 4.4vw, 48px); letter-spacing: -.035em; line-height: 1.1; text-align: center; }
-.sub { text-align: center; color: var(--muted); max-width: 600px; margin: 14px auto 0; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 42px; }
-.card { padding: 26px; border-radius: 26px; }
-.card .ico { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; font-size: 24px; background: linear-gradient(135deg, rgba(var(--c1), .35), rgba(var(--c2), .35)); box-shadow: var(--shine); }
-.card h3 { font-size: 19px; margin-top: 16px; letter-spacing: -.02em; }
-.card p { color: var(--muted); margin-top: 6px; font-size: 15px; }
+.hero-art { position: relative; justify-self: center; width: min(360px, 100%); }
+.hero-art .chat { border-radius: 26px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .8), 0 0 0 8px rgba(255, 255, 255, .025); }
+.pill { position: absolute; display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 600; white-space: nowrap;
+  background: rgba(24, 21, 32, .86); border: 1px solid var(--line-2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .7); }
+.pill i { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; }
+.pill.p1 { left: -64px; top: 64px; }
+.pill.p2 { right: -46px; bottom: 120px; }
+.pill .av { display: flex; }
+.pill .av b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #fff; margin-left: -6px; border: 2px solid #18151f; }
+.pill .av b:first-child { margin-left: 0; }
 
-.split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; margin-top: 42px; }
-.split img { width: 100%; height: auto; border-radius: 22px; display: block; }
-.split .frame { padding: 8px; border-radius: 28px; }
-.split ul { list-style: none; padding: 0; display: grid; gap: 14px; }
-.split li { display: flex; gap: 14px; align-items: flex-start; }
-.split li span { font-size: 22px; line-height: 1.3; }
-.split li b { display: block; font-size: 17px; }
-.split li p { color: var(--muted); font-size: 15px; }
+/* скриншот комнаты */
+.window { border-radius: 20px; overflow: hidden; border: 1px solid var(--line-2); background: #000; box-shadow: 0 50px 120px -40px rgba(242, 96, 156, .35), 0 30px 80px -30px rgba(0, 0, 0, .9); }
+.caption { text-align: center; color: var(--dim); font-size: 14px; margin-top: 16px; }
 
-.steps { counter-reset: s; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 42px; }
-.step { padding: 26px; border-radius: 26px; position: relative; }
-.step::before { counter-increment: s; content: counter(s); font: 800 44px Syne; background: linear-gradient(120deg, rgb(var(--c1)), rgb(var(--c2))); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.step h3 { font-size: 19px; margin-top: 4px; }
-.step p { color: var(--muted); margin-top: 6px; font-size: 15px; }
-.note { margin: 22px auto 0; max-width: 760px; padding: 16px 20px; border-radius: 20px; font-size: 14px; color: var(--muted); }
-.note b { color: var(--text); }
+/* секции */
+section { padding-top: 120px; }
+.kicker { font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.03em; font-weight: 700; margin-top: 12px; max-width: 720px; }
+.sec-lead { color: var(--muted); font-size: 18px; margin-top: 16px; max-width: 620px; }
 
-.final { text-align: center; margin-top: 100px; padding: 56px 24px; border-radius: 36px; }
-.final h2 { margin-bottom: 26px; }
-footer { padding: 40px 0 50px; text-align: center; color: var(--muted); font-size: 13px; }
-footer a { color: var(--text); }
+/* плитки возможностей */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+.tile { grid-column: span 2; position: relative; display: flex; flex-direction: column; border-radius: var(--r); background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015)); border: 1px solid var(--line); overflow: hidden; }
+.tile.w3 { grid-column: span 3; }
+.tile.w4 { grid-column: span 4; }
+.tile.wide { grid-column: span 6; flex-direction: row; align-items: center; }
+.tile.wide .txt { padding: 26px; flex: 1; }
+.tile.wide .art { margin: 0; padding: 26px; }
+.tile .txt { padding: 26px 26px 0; }
+.tile h3 { font-size: 20px; font-weight: 600; letter-spacing: -.015em; }
+.tile p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
+.tile .art { margin-top: auto; padding: 22px 26px 26px; }
+.tile .art img { border-radius: 14px; border: 1px solid var(--line); }
+.tile .art.bleed { padding: 22px 0 0 26px; }
+.tile .art.bleed img { border-radius: 14px 0 0 0; border-right: 0; border-bottom: 0; }
 
-@media (max-width: 820px) {
-  nav .links { display: none; }
-  nav .btn { margin-left: auto; }
-  .split { grid-template-columns: 1fr; }
-  .shot { transform: none; }
-  .hero { padding-top: 60px; }
+.search { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 16px; border-radius: 14px; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); font-size: 15.5px; }
+.search svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.search .caret { width: 2px; height: 20px; background: var(--a2); animation: blink 1s steps(1) infinite; margin-left: -6px; }
+.search kbd { margin-left: auto; font: 600 12px Onest; color: var(--muted); padding: 3px 8px; border-radius: 7px; border: 1px solid var(--line-2); }
+@keyframes blink { 50% { opacity: 0; } }
+.result { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .04); }
+.result .cv { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #3b2b6e, #e46aa0 60%, #ffb35c); flex: none; }
+.result b { display: block; font-weight: 600; font-size: 15px; }
+.result small { color: var(--muted); font-size: 13px; }
+.result .ok { margin-left: auto; font-size: 13px; font-weight: 600; color: #34d399; white-space: nowrap; }
+
+.code { display: flex; gap: 8px; }
+.code b { flex: 1; aspect-ratio: 1 / 1.15; display: grid; place-items: center; border-radius: 12px; font-size: 24px; font-weight: 700; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); }
+.code b:nth-child(-n+3) { border-color: rgba(242, 96, 156, .55); box-shadow: 0 0 0 3px rgba(242, 96, 156, .12); }
+
+.keys { display: flex; gap: 10px; }
+.keys span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); border: 1px solid var(--line-2); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); font-weight: 600; }
+.keys span small { color: var(--muted); font-size: 12px; font-weight: 500; }
+.keys svg { width: 20px; height: 20px; }
+
+.logos { display: flex; gap: 10px; flex-wrap: wrap; }
+.logos span { display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px; border-radius: 14px; background: rgba(0, 0, 0, .25); border: 1px solid var(--line); font-weight: 600; font-size: 15px; }
+.logos i { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 800 13px Onest; font-style: normal; }
+
+/* шаги */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+.step { padding: 28px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
+.step .n { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; font-size: 18px; color: #190d14; background: var(--grad); }
+.step h3 { font-size: 20px; font-weight: 600; margin-top: 18px; letter-spacing: -.015em; }
+.step p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
+.notice { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; padding: 18px 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 15px; }
+.notice svg { width: 22px; height: 22px; color: var(--a1); flex: none; margin-top: 1px; }
+.notice b { color: var(--text); font-weight: 600; }
+
+/* финал */
+.final { position: relative; overflow: hidden; margin-top: 120px; padding: 72px 32px; border-radius: 32px; text-align: center; border: 1px solid var(--line-2);
+  background: radial-gradient(70% 120% at 50% 0%, rgba(242, 96, 156, .28), transparent 70%), radial-gradient(50% 90% at 10% 100%, rgba(255, 179, 92, .2), transparent 70%), var(--bg-2); }
+.final h2 { margin: 0 auto; }
+.final p { color: var(--muted); margin: 14px auto 30px; max-width: 480px; }
+footer { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 44px 0 52px; color: var(--dim); font-size: 14px; }
+footer a { color: var(--muted); }
+footer a:hover { color: var(--text); }
+
+@media (max-width: 980px) {
+  .hero { grid-template-columns: 1fr; padding-top: 56px; gap: 64px; }
+  .hero-art { width: min(320px, 78%); }
+  .pill.p1 { left: -40px; } .pill.p2 { right: -34px; }
+  .bento { grid-template-columns: 1fr 1fr; }
+  .tile, .tile.w3 { grid-column: span 1; }
+  .tile.w4, .tile.wide { grid-column: span 2; }
+  .steps { grid-template-columns: 1fr; }
 }
-@media (prefers-reduced-motion: reduce) { .orbs i { animation: none; } .shot { transform: none; } }
+@media (max-width: 680px) {
+  nav .links { display: none; }
+  .bento { grid-template-columns: 1fr; }
+  .tile, .tile.w3, .tile.w4, .tile.wide { grid-column: span 1; }
+  .tile.wide { flex-direction: column; align-items: stretch; }
+  .tile.wide .txt { padding: 26px 26px 0; }
+  .tile.wide .art { padding: 22px 26px 26px; }
+  section { padding-top: 88px; }
+  .lead { font-size: 17.5px; }
+  .pill { font-size: 13px; padding: 8px 12px; }
+  .pill.p1 { left: -18px; top: 30px; } .pill.p2 { right: -16px; }
+  .final { padding: 56px 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .search .caret { animation: none; } }
 </style>
 </head>
 <body>
-<div class="orbs"><i></i><i></i><i></i></div>
-<div class="wrap">
-  <nav class="glass">
-    <a class="logo" href="#">flow</a>
-    <div class="links"><a href="#features">Возможности</a><a href="#together">Вместе</a><a href="#start">Как начать</a></div>
-    <a class="btn primary sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Скачать</a>
-  </nav>
+<div class="glow"></div>
+<nav><div class="wrap">
+  <a class="logo" href="#"><img src="img/icon.png" alt=""><span>flow</span></a>
+  <div class="links"><a href="#features">Возможности</a><a href="#start">Как начать</a><a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe">Запасная ссылка</a></div>
+  <a class="btn primary sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Скачать</a>
+</div></nav>
 
+<main class="wrap">
   <header class="hero">
-    <span class="badge glass"><b></b>Версия 0.4.1 · Windows 10/11</span>
-    <h1>Слушайте музыку <em>вместе</em> — секунда в секунду</h1>
-    <p class="lead">Создай комнату, скинь другу код — и трек зазвучит у всех одновременно. Общий плейлист, чат и «Моя волна», которая сама подбирает музыку.</p>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
-      <a class="btn ghost glass" href="#features">Что умеет</a>
+    <div>
+      <span class="eyebrow"><b>0.4.1</b>Бесплатно для Windows 10 и 11</span>
+      <h1>Слушайте музыку <span class="g">вместе</span>,&nbsp;секунда в&nbsp;секунду</h1>
+      <p class="lead">Создай комнату, отправь другу код — и трек зазвучит у вас одновременно. Общий плейлист, чат и волна, которая сама подбирает музыку.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
+        <a class="btn ghost" href="#features">Возможности</a>
+      </div>
+      <div class="facts">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>Обновляется сама</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>115 МБ</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/></svg>Без рекламы</span>
+      </div>
     </div>
-    <p class="meta">Бесплатно · ~115 МБ · обновляется сама · <a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe">запасная ссылка</a></p>
-    <div class="shot glass"><img src="img/room.webp" alt="Комната Flow: общий плейлист, участники и чат" width="1980" height="1260"></div>
+    <div class="hero-art">
+      <img class="chat" src="img/crop-chat.webp" alt="Чат комнаты Flow" width="600" height="860">
+      <div class="pill p1"><i></i>синхронно ±4 мс</div>
+      <div class="pill p2"><span class="av"><b style="background:#ec4899">А</b><b style="background:#f59e0b">М</b><b style="background:#ef4444">Л</b></span>3 слушателя</div>
+    </div>
   </header>
 
-  <section id="features">
-    <h2>Всё, что нужно для совместного прослушивания</h2>
-    <p class="sub">Никаких «три, два, один — жмём плей». Flow сверяет часы с сервером и подстраивает звук, пока вы слушаете.</p>
-    <div class="grid">
-      <div class="card glass"><div class="ico">⏱️</div><h3>Синхронно до миллисекунд</h3><p>Расхождение между друзьями — считанные миллисекунды. Перемотка и пауза — сразу у всех.</p></div>
-      <div class="card glass"><div class="ico">🔑</div><h3>Комнаты по коду</h3><p>Шесть символов — и друг в комнате. Владелец может закрыть управление, выгнать или удалить комнату.</p></div>
-      <div class="card glass"><div class="ico">🔎</div><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
-      <div class="card glass"><div class="ico">🌊</div><h3>Моя волна</h3><p>Включи — и очередь не кончается: треки подбираются под то, что вы слушаете.</p></div>
-      <div class="card glass"><div class="ico">❤️</div><h3>Твои лайки</h3><p>Подключи Яндекс Музыку или SoundCloud и перенеси лайки в избранное одной кнопкой.</p></div>
-      <div class="card glass"><div class="ico">🎧</div><h3>И просто плеер</h3><p>Без комнаты — обычный плеер с очередью, волной и медиаклавишами клавиатуры.</p></div>
-    </div>
-  </section>
+  <div class="window"><img src="img/room.webp" alt="Комната Flow: плеер, общий плейлист, участники и чат" width="1980" height="1260"></div>
+  <p class="caption">Комната «Вечерний вайб»: у всех троих играет один и тот же момент трека</p>
 
-  <section id="together">
-    <h2>Комната — как общий диван</h2>
-    <p class="sub">Каждый добавляет свои треки, все видят, кто что поставил, и болтают в чате.</p>
-    <div class="split">
-      <div class="frame glass"><img src="img/player.webp" alt="Свой плеер Flow с волной" loading="lazy" width="1980" height="1260"></div>
-      <ul>
-        <li><span>👥</span><div><b>Общий плейлист</b><p>Добавляй, двигай и убирай треки — изменения видны всем мгновенно.</p></div></li>
-        <li><span>💬</span><div><b>Чат со смайликами</b><p>Обсуждайте прямо в комнате — с аватарками, гифками и крупными эмодзи.</p></div></li>
-        <li><span>🎨</span><div><b>Жидкое стекло</b><p>Интерфейс подстраивает цвета под обложку трека. Или выбери палитру по вкусу.</p></div></li>
-        <li><span>⌨️</span><div><b>Медиаклавиши</b><p>Fn+F7/F8/F9 — назад, пауза, вперёд. Работает и в свёрнутом окне.</p></div></li>
-      </ul>
+  <section id="features">
+    <div class="kicker">Возможности</div>
+    <h2>Всё для совместного прослушивания — и ничего лишнего</h2>
+    <p class="sec-lead">Никаких «три, два, один — жмём плей». Flow сверяет часы с сервером и подстраивает звук, пока вы слушаете.</p>
+    <div class="bento">
+      <div class="tile w4">
+        <div class="txt"><h3>Синхронно до миллисекунд</h3><p>Расхождение между друзьями — считанные миллисекунды. Пауза, перемотка и следующий трек срабатывают у всех сразу.</p></div>
+        <div class="art"><img src="img/crop-sync.webp" alt="Плеер Flow с индикатором синхронизации" width="1120" height="135" loading="lazy"></div>
+      </div>
+      <div class="tile">
+        <div class="txt"><h3>Комнаты по коду</h3><p>Шесть символов — и друг внутри.</p></div>
+        <div class="art"><div class="code"><b>A</b><b>J</b><b>B</b><b>Y</b><b>U</b><b>S</b></div></div>
+      </div>
+      <div class="tile w3">
+        <div class="txt"><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
+        <div class="art">
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Daft Punk One More Time<span class="caret"></span><kbd>Enter</kbd></div>
+          <div class="result"><div class="cv"></div><div><b>One More Time</b><small>Daft Punk · 5:22</small></div><span class="ok">✓ в очереди</span></div>
+        </div>
+      </div>
+      <div class="tile w3">
+        <div class="txt"><h3>Моя волна</h3><p>Включи — и очередь не кончается: похожие треки подбираются сами.</p></div>
+        <div class="art bleed"><img src="img/crop-wave.webp" alt="Очередь с треками, которые подобрала волна" width="890" height="470" loading="lazy"></div>
+      </div>
+      <div class="tile w3">
+        <div class="txt"><h3>Хозяин комнаты решает</h3><p>Закрыть управление, выгнать участника или удалить комнату — в один клик.</p></div>
+        <div class="art"><img src="img/crop-head.webp" alt="Шапка комнаты: код, волна, замок, участники" width="735" height="95" loading="lazy"></div>
+      </div>
+      <div class="tile w3">
+        <div class="txt"><h3>И просто плеер</h3><p>Без комнаты — обычный плеер с очередью и волной. Медиаклавиши работают даже в свёрнутом окне.</p></div>
+        <div class="art"><div class="keys">
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6v12L9.5 12zM6 6h2v12H6z"/></svg><small>Fn + F7</small></span>
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg><small>Fn + F8</small></span>
+          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6v12l8.5-6zM16 6h2v12h-2z"/></svg><small>Fn + F9</small></span>
+        </div></div>
+      </div>
+      <div class="tile wide">
+        <div class="txt"><h3>Твои лайки — с собой</h3><p>Подключи сервис и перенеси лайкнутые треки в избранное одной кнопкой.</p></div>
+        <div class="art"><div class="logos">
+          <span><i style="background:#ffcc00;color:#000">Я</i>Яндекс Музыка</span>
+          <span><i style="background:#ff5500;color:#fff">SC</i>SoundCloud</span>
+          <span><i style="background:#7e1bcc;color:#fff">A</i>Audius</span>
+        </div></div>
+      </div>
     </div>
   </section>
 
   <section id="start">
-    <h2>Как начать</h2>
+    <div class="kicker">Как начать</div>
+    <h2>Три шага до общего плейлиста</h2>
     <div class="steps">
-      <div class="step glass"><h3>Скачай и установи</h3><p>Установщик ставит Flow в один клик. Дальше обновления приходят сами — кнопкой в окне.</p></div>
-      <div class="step glass"><h3>Создай аккаунт</h3><p>Логин и пароль — всё. Друзья увидят твоё имя и аватарку.</p></div>
-      <div class="step glass"><h3>Позови друзей</h3><p>Создай комнату и отправь код. Как только друг зайдёт — слушаете вместе.</p></div>
+      <div class="step"><div class="n">1</div><h3>Скачай и установи</h3><p>Установщик ставит Flow в один клик. Дальше новые версии приходят сами — кнопкой в окне программы.</p></div>
+      <div class="step"><div class="n">2</div><h3>Создай аккаунт</h3><p>Логин и пароль — всё. Друзья увидят твоё имя и аватарку, можно даже гифку.</p></div>
+      <div class="step"><div class="n">3</div><h3>Позови друзей</h3><p>Создай комнату и отправь код. Как только друг зайдёт — вы слушаете вместе.</p></div>
     </div>
-    <p class="note glass">Windows может показать «Система Windows защитила ваш компьютер» — у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее» → «Выполнить в любом случае»</b>.</p>
+    <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+      <div>Windows может показать «Система Windows защитила ваш компьютер» — у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</div></div>
   </section>
 
-  <div class="final glass">
+  <div class="final">
     <h2>Музыка лучше, когда она общая</h2>
-    <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.4.1</a>
+    <p>Скачай Flow, создай комнату и отправь код тому, с кем хочется слушать.</p>
+    <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.4.1</a>
   </div>
 
-  <footer>Flow · сделано с любовью к музыке · смайлики — <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (OFL)</footer>
-</div>
+  <footer>
+    <span>Flow · 0.4.1 · Windows 10/11</span>
+    <span>Шрифты <a href="https://fonts.google.com/specimen/Onest">Onest</a> и <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (OFL)</span>
+  </footer>
+</main>
 </body>
 </html>
