@@ -126,8 +126,6 @@ h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.03em
 .code.on b:nth-child(4) { animation-delay: .18s, .78s; } .code.on b:nth-child(5) { animation-delay: .24s, .84s; } .code.on b:nth-child(6) { animation-delay: .3s, .9s; }
 @keyframes hop { 40% { transform: translateY(-12px) scale(1.06); } }
 @keyframes neon { 50% { text-shadow: 0 0 3px rgba(255, 60, 80, .8), 0 0 9px rgba(255, 30, 60, .45); } }
-.egg-note { height: 0; overflow: hidden; opacity: 0; margin-top: 0; font-size: 14px; line-height: 1.45; font-weight: 600; color: #ff7a88; text-align: center; text-wrap: balance; transition: opacity .4s .35s, height .3s, margin .3s; }
-.code.on + .egg-note { height: 44px; opacity: 1; margin-top: 12px; }
 
 .keys { display: flex; gap: 10px; }
 .keys span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); border: 1px solid var(--line-2); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); font-weight: 600; }
@@ -227,7 +225,7 @@ footer a:hover { color: var(--text); }
       </div>
       <div class="tile">
         <div class="txt"><h3>Комнаты по коду</h3><p>Шесть символов — и друг внутри.</p></div>
-        <div class="art"><div class="code" id="egg" title="Хм, а что если нажать?"><b>L</b><b>U</b><b>C</b><b>R</b><b>I</b><b>X</b></div><div class="egg-note">👑 Это настоящая комната создателя: во Flow открой «Комнаты» и введи LUCRIX</div></div>
+        <div class="art"><div class="code" id="egg"><b>L</b><b>U</b><b>C</b><b>R</b><b>I</b><b>X</b></div></div>
       </div>
       <div class="tile w3">
         <div class="txt"><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
