@@ -104,6 +104,7 @@ h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.03em
 
 .search { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 16px; border-radius: 14px; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); font-size: 15.5px; }
 .search svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.search .q { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .search .caret { width: 2px; height: 20px; background: var(--a2); animation: blink 1s steps(1) infinite; margin-left: -6px; }
 .search kbd { margin-left: auto; font: 600 12px Onest; color: var(--muted); padding: 3px 8px; border-radius: 7px; border: 1px solid var(--line-2); }
 @keyframes blink { 50% { opacity: 0; } }
@@ -220,7 +221,7 @@ footer a:hover { color: var(--text); }
       <div class="tile w3">
         <div class="txt"><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
         <div class="art">
-          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Daft Punk One More Time<span class="caret"></span><kbd>Enter</kbd></div>
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="q">Daft Punk One More Time</span><span class="caret"></span><kbd>Enter</kbd></div>
           <div class="result"><div class="cv"></div><div><b>One More Time</b><small>Daft Punk · 5:22</small></div><span class="ok">✓ в очереди</span></div>
         </div>
       </div>
