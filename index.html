@@ -117,6 +117,17 @@ h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.03em
 .code { display: flex; gap: 8px; }
 .code b { flex: 1; aspect-ratio: 1 / 1.15; display: grid; place-items: center; border-radius: 12px; font-size: 24px; font-weight: 700; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); }
 .code b:nth-child(-n+3) { border-color: rgba(242, 96, 156, .55); box-shadow: 0 0 0 3px rgba(242, 96, 156, .12); }
+/* пасхалка: клик по коду — буквы подпрыгивают и загораются красным неоном, как ник админа в чате */
+.code { cursor: pointer; user-select: none; }
+.code b { transition: color .3s, border-color .3s, box-shadow .3s, text-shadow .3s; }
+.code.on b { color: #ff4d5e; border-color: rgba(255, 60, 80, .7); text-shadow: 0 0 6px rgba(255, 60, 80, .95), 0 0 16px rgba(255, 30, 60, .7);
+  box-shadow: 0 0 0 3px rgba(255, 40, 70, .14), 0 0 22px rgba(255, 30, 60, .35); animation: hop .5s cubic-bezier(.3, 1.6, .5, 1) both, neon 2.4s ease-in-out .6s infinite; }
+.code.on b:nth-child(2) { animation-delay: .06s, .66s; } .code.on b:nth-child(3) { animation-delay: .12s, .72s; }
+.code.on b:nth-child(4) { animation-delay: .18s, .78s; } .code.on b:nth-child(5) { animation-delay: .24s, .84s; } .code.on b:nth-child(6) { animation-delay: .3s, .9s; }
+@keyframes hop { 40% { transform: translateY(-12px) scale(1.06); } }
+@keyframes neon { 50% { text-shadow: 0 0 3px rgba(255, 60, 80, .8), 0 0 9px rgba(255, 30, 60, .45); } }
+.egg-note { height: 0; overflow: hidden; opacity: 0; margin-top: 0; font-size: 14px; font-weight: 600; color: #ff7a88; text-align: center; transition: opacity .4s .35s, height .3s, margin .3s; }
+.code.on + .egg-note { height: 22px; opacity: 1; margin-top: 12px; }
 
 .keys { display: flex; gap: 10px; }
 .keys span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); border: 1px solid var(--line-2); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); font-weight: 600; }
@@ -216,7 +227,7 @@ footer a:hover { color: var(--text); }
       </div>
       <div class="tile">
         <div class="txt"><h3>Комнаты по коду</h3><p>Шесть символов — и друг внутри.</p></div>
-        <div class="art"><div class="code"><b>A</b><b>J</b><b>B</b><b>Y</b><b>U</b><b>S</b></div></div>
+        <div class="art"><div class="code" id="egg" title="Хм, а что если нажать?"><b>L</b><b>U</b><b>C</b><b>R</b><b>I</b><b>X</b></div><div class="egg-note">👑 комната создателя Flow</div></div>
       </div>
       <div class="tile w3">
         <div class="txt"><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
@@ -275,5 +286,14 @@ footer a:hover { color: var(--text); }
     <span>Шрифты <a href="https://fonts.google.com/specimen/Onest">Onest</a> и <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (OFL)</span>
   </footer>
 </main>
+<script>
+  // пасхалка: код комнаты LUCRIX
+  const egg = document.getElementById("egg");
+  egg.addEventListener("click", () => {
+    egg.classList.remove("on");
+    void egg.offsetWidth;  // перезапуск анимации при повторном клике
+    egg.classList.add("on");
+  });
+</script>
 </body>
 </html>
