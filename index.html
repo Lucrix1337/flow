@@ -4,298 +4,405 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flow — музыка с друзьями, синхронно</title>
-<meta name="description" content="Flow — приложение для Windows: слушайте музыку вместе с друзьями в идеальной синхронизации. Комнаты по коду, общий плейлист, «Моя волна», чат.">
+<meta name="description" content="Flow — плеер для Windows с комнатами: отправь другу код, и трек зазвучит у вас одновременно. Общий плейлист, волна, чат.">
 <meta property="og:title" content="Flow — музыка с друзьями, синхронно">
 <meta property="og:description" content="Комната по коду, общий плейлист и звук у всех одновременно — с точностью до миллисекунд.">
 <meta property="og:image" content="img/room.webp">
-<meta name="theme-color" content="#0b0a10">
+<meta name="theme-color" content="#23112b">
 <link rel="icon" href="img/icon.png">
 <link rel="stylesheet" href="onest.css">
-<link rel="stylesheet" href="emoji.css">
 <style>
 @font-face { font-family: Syne; src: url(fonts/Syne.ttf); font-weight: 400 800; font-display: swap; }
+/* Unbounded (Google Fonts, SIL OFL 1.1) — только для заголовков */
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+/* палитра «Слива»: тёмный сливовый + персик; у каждого друга свой цвет дорожки */
 :root {
-  --bg: #0b0a10; --bg-2: #121019; --text: #f3f1f8; --muted: #a9a6b8; --dim: #6f6c80;
-  --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .14); --surface: rgba(255, 255, 255, .035);
-  --a1: #ffb35c; --a2: #f2609c; --a3: #8b7bff;
-  --grad: linear-gradient(110deg, var(--a1), var(--a2));
-  --r: 24px;
+  --bg: #23112b; --surface: #301a3a; --sunken: #1a0c20;
+  --text: #f7eef6; --muted: #bba5c0; --dim: #8a7392;
+  --line: rgba(247, 238, 246, .12); --line-2: rgba(247, 238, 246, .2);
+  --accent: #ff9b73; --on-accent: #23112b; --accent-glow: rgba(255, 155, 115, .5);
+  --nav-bg: rgba(35, 17, 43, .84); --shade: rgba(20, 8, 26, .78); --warn: #ff7a8a;
+  --hyrax: #8fb8ff; --lucrix: #c77dff; --miles: #ffd36e; --on-lane: #23112b;
 }
+@property --sx { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --sy { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --sr { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--text); font: 400 17px/1.6 Onest, "Noto Color Emoji", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+body { background: var(--bg); color: var(--text); font: 400 17px/1.6 Onest, "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; height: auto; }
-.wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
 
-/* фон: одно мягкое тёплое свечение сверху и шум, без «пятен по всей странице» */
-.glow { position: absolute; inset: 0 0 auto; height: 900px; z-index: -1; pointer-events: none;
-  background: radial-gradient(60% 55% at 70% 0%, rgba(242, 96, 156, .22), transparent 70%), radial-gradient(45% 45% at 15% 10%, rgba(255, 179, 92, .18), transparent 70%); }
+h1, h2 { font-family: Unbounded, Onest, sans-serif; text-wrap: balance; }
+h1 { font-size: clamp(38px, 6.2vw, 78px); line-height: 1.02; letter-spacing: -.035em; font-weight: 600; max-width: 13ch; }
+h2 { font-size: clamp(28px, 3.8vw, 46px); line-height: 1.08; letter-spacing: -.03em; font-weight: 500; max-width: 18ch; }
+h3 { font-size: 19px; line-height: 1.3; font-weight: 600; letter-spacing: -.01em; }
 
 /* навигация */
-nav { position: sticky; top: 0; z-index: 20; background: rgba(11, 10, 16, .72); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border-bottom: 1px solid var(--line); }
-nav .wrap { display: flex; align-items: center; gap: 32px; height: 68px; }
-.logo { display: flex; align-items: center; gap: 10px; font: 800 26px/1 Syne; letter-spacing: -.05em; }
-.logo img { width: 30px; height: 30px; border-radius: 9px; }
-.logo span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 2px; }
-nav .links { display: flex; gap: 28px; font-size: 15px; color: var(--muted); }
+nav { position: sticky; top: 0; z-index: 20; background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
+nav .wrap { display: flex; align-items: center; gap: 32px; height: 64px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 800 25px/1 Syne; letter-spacing: -.05em; padding-bottom: 3px; }
+.logo img { width: 28px; height: 28px; border-radius: 8px; margin-top: 3px; }
+nav .links { display: flex; gap: 26px; font-size: 15px; color: var(--muted); }
 nav .links a:hover { color: var(--text); }
 nav .btn { margin-left: auto; }
 
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 22px; border-radius: 14px; font-weight: 600; font-size: 16px; white-space: nowrap; transition: transform .15s, background .2s, box-shadow .2s; }
-.btn:hover { transform: translateY(-1px); }
+.btn { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 24px; border-radius: 999px; font-weight: 600; font-size: 16px; white-space: nowrap; transition: background .2s, transform .15s; }
 .btn svg { width: 19px; height: 19px; flex: none; }
-.btn.primary { color: #190d14; background: var(--grad); box-shadow: 0 8px 30px -8px rgba(242, 96, 156, .6), inset 0 1px 0 rgba(255, 255, 255, .45); }
-.btn.primary:hover { box-shadow: 0 12px 38px -8px rgba(242, 96, 156, .8), inset 0 1px 0 rgba(255, 255, 255, .45); }
-.btn.ghost { background: var(--surface); border: 1px solid var(--line-2); }
-.btn.ghost:hover { background: rgba(255, 255, 255, .07); }
-.btn.sm { height: 40px; padding: 0 16px; font-size: 15px; border-radius: 12px; }
+.btn.lamp { background: var(--accent); color: var(--on-accent); }
+.btn.lamp:hover { filter: brightness(1.08); }
+.btn.lamp:active { transform: translateY(1px); }
+.btn.sm { height: 40px; padding: 0 18px; font-size: 15px; }
 
 /* первый экран */
-.hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 56px; align-items: center; padding: 84px 0 72px; }
-.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: var(--muted); padding: 6px 14px 6px 8px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
-.eyebrow b { font-weight: 600; color: #171018; background: var(--grad); padding: 2px 9px; border-radius: 999px; font-size: 13px; }
-h1, h2 { text-wrap: balance; }
-h1 { font-size: clamp(42px, 5.6vw, 70px); line-height: 1.04; letter-spacing: -.035em; font-weight: 700; margin-top: 22px; }
-h1 .g { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lead { font-size: 19px; color: var(--muted); margin-top: 22px; max-width: 540px; }
-.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 34px; }
-.facts { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 26px; font-size: 14px; color: var(--dim); }
-.facts span { display: flex; align-items: center; gap: 7px; }
-.facts svg { width: 16px; height: 16px; color: var(--muted); }
-.facts a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.hero { padding: 60px 0 0; }
+.hero .lead { font-size: 19px; color: var(--muted); max-width: 33em; margin-top: 22px; }
+.hero .cta { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 30px; }
+.hero .cta small { color: var(--dim); font-size: 14px; line-height: 1.45; }
 
-.hero-art { position: relative; justify-self: center; width: min(360px, 100%); }
-.hero-art .chat { border-radius: 26px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .8), 0 0 0 8px rgba(255, 255, 255, .025); }
-.pill { position: absolute; display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 600; white-space: nowrap;
-  background: rgba(24, 21, 32, .86); border: 1px solid var(--line-2); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .7); }
-.pill i { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; }
-.pill.p1 { left: -64px; top: 64px; }
-.pill.p2 { right: -46px; bottom: 120px; }
-.pill .av { display: flex; }
-.pill .av b { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #fff; margin-left: -6px; border: 2px solid #18151f; }
-.pill .av b:first-child { margin-left: 0; }
+/* живое демо: три дорожки, одна игла */
+.demo { position: relative; margin-top: 52px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; touch-action: pan-y; }
+.demo-bar { display: flex; align-items: center; gap: 18px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.play { width: 44px; height: 44px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); cursor: pointer; flex: none; }
+.play svg { width: 18px; height: 18px; }
+.play .i-play { display: none; margin-left: 2px; }
+.demo.paused .play .i-play { display: block; }
+.demo.paused .play .i-pause { display: none; }
+.now { min-width: 0; }
+.now b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.now span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.room { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 14px; }
+.state { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.state i { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); transition: background .3s, box-shadow .3s; }
+.demo.synced .state i { background: var(--miles); box-shadow: 0 0 10px var(--miles); }
 
-/* скриншот комнаты */
-.window { border-radius: 20px; overflow: hidden; border: 1px solid var(--line-2); background: #000; box-shadow: 0 50px 120px -40px rgba(242, 96, 156, .35), 0 30px 80px -30px rgba(0, 0, 0, .9); }
-.caption { text-align: center; color: var(--dim); font-size: 14px; margin-top: 16px; }
-
-/* секции */
-section { padding-top: 120px; }
-.kicker { font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -.03em; font-weight: 700; margin-top: 12px; max-width: 720px; }
-.sec-lead { color: var(--muted); font-size: 18px; margin-top: 16px; max-width: 620px; }
-
-/* плитки возможностей */
-.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
-.tile { grid-column: span 2; position: relative; display: flex; flex-direction: column; border-radius: var(--r); background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .015)); border: 1px solid var(--line); overflow: hidden; }
-.tile.w3 { grid-column: span 3; }
-.tile.w4 { grid-column: span 4; }
-.tile.wide { grid-column: span 6; flex-direction: row; align-items: center; }
-.tile.wide .txt { padding: 26px; flex: 1; }
-.tile.wide .art { margin: 0; padding: 26px; }
-.tile .txt { padding: 26px 26px 0; }
-.tile h3 { font-size: 20px; font-weight: 600; letter-spacing: -.015em; }
-.tile p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
-.tile .art { margin-top: auto; padding: 22px 26px 26px; }
-.tile .art img { border-radius: 14px; border: 1px solid var(--line); }
-.tile .art.bleed { padding: 22px 0 0 26px; }
-.tile .art.bleed img { border-radius: 14px 0 0 0; border-right: 0; border-bottom: 0; }
-
-.search { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 16px; border-radius: 14px; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); font-size: 15.5px; }
-.search svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
-.search .q { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.search .caret { width: 2px; height: 20px; background: var(--a2); animation: blink 1s steps(1) infinite; margin-left: -6px; }
-.search kbd { margin-left: auto; font: 600 12px Onest; color: var(--muted); padding: 3px 8px; border-radius: 7px; border: 1px solid var(--line-2); }
-@keyframes blink { 50% { opacity: 0; } }
-.result { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, .04); }
-.result .cv { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #3b2b6e, #e46aa0 60%, #ffb35c); flex: none; }
-.result b { display: block; font-weight: 600; font-size: 15px; }
-.result small { color: var(--muted); font-size: 13px; }
-.result .ok { margin-left: auto; font-size: 13px; font-weight: 600; color: #34d399; white-space: nowrap; }
-
-.code { display: flex; gap: 8px; }
-.code b { flex: 1; aspect-ratio: 1 / 1.15; display: grid; place-items: center; border-radius: 12px; font-size: 24px; font-weight: 700; background: rgba(0, 0, 0, .3); border: 1px solid var(--line-2); }
-.code b:nth-child(-n+3) { border-color: rgba(242, 96, 156, .55); box-shadow: 0 0 0 3px rgba(242, 96, 156, .12); }
+.code { display: flex; gap: 4px; cursor: pointer; user-select: none; }
+.code b { width: 26px; height: 32px; display: grid; place-items: center; border-radius: 7px; font: 600 14px Onest; color: var(--text); background: var(--sunken); border: 1px solid var(--line); transition: color .3s, border-color .3s, box-shadow .3s, text-shadow .3s; }
 /* пасхалка: клик по коду — буквы подпрыгивают и загораются красным неоном, как ник админа в чате */
-.code { cursor: pointer; user-select: none; }
-.code b { transition: color .3s, border-color .3s, box-shadow .3s, text-shadow .3s; }
 .code.on b { color: #ff4d5e; border-color: rgba(255, 60, 80, .7); text-shadow: 0 0 6px rgba(255, 60, 80, .95), 0 0 16px rgba(255, 30, 60, .7);
-  box-shadow: 0 0 0 3px rgba(255, 40, 70, .14), 0 0 22px rgba(255, 30, 60, .35); animation: hop .5s cubic-bezier(.3, 1.6, .5, 1) both, neon 2.4s ease-in-out .6s infinite; }
+  box-shadow: 0 0 0 2px rgba(255, 40, 70, .14), 0 0 18px rgba(255, 30, 60, .35); animation: hop .5s cubic-bezier(.3, 1.6, .5, 1) both, neon 2.4s ease-in-out .6s infinite; }
 .code.on b:nth-child(2) { animation-delay: .06s, .66s; } .code.on b:nth-child(3) { animation-delay: .12s, .72s; }
 .code.on b:nth-child(4) { animation-delay: .18s, .78s; } .code.on b:nth-child(5) { animation-delay: .24s, .84s; } .code.on b:nth-child(6) { animation-delay: .3s, .9s; }
-@keyframes hop { 40% { transform: translateY(-12px) scale(1.06); } }
+@keyframes hop { 40% { transform: translateY(-8px) scale(1.06); } }
 @keyframes neon { 50% { text-shadow: 0 0 3px rgba(255, 60, 80, .8), 0 0 9px rgba(255, 30, 60, .45); } }
 
-.keys { display: flex; gap: 10px; }
-.keys span { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 6px 12px; border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); border: 1px solid var(--line-2); box-shadow: 0 3px 0 rgba(0, 0, 0, .5); font-weight: 600; }
-.keys span small { color: var(--muted); font-size: 12px; font-weight: 500; }
-.keys svg { width: 20px; height: 20px; }
+.lanes { position: relative; padding: 10px 0; cursor: grab; }
+.lanes.drag { cursor: grabbing; }
+.lane { display: grid; grid-template-columns: 170px 1fr 86px; align-items: center; height: 78px; }
+.who { padding-left: 20px; display: flex; align-items: center; gap: 12px; min-width: 0; }
+.who .av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--on-lane); background: var(--c); flex: none; }
+.who b { display: block; font-weight: 600; font-size: 15px; line-height: 1.25; }
+.who span { color: var(--muted); font-size: 13px; }
+.lane canvas { width: 100%; height: 56px; display: block; }
+.off { padding-right: 20px; text-align: right; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--muted); transition: color .3s; }
+.off.far { color: var(--warn); }
+/* игла — общая на все три дорожки */
+.needle { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--accent); pointer-events: none; box-shadow: 0 0 14px var(--accent-glow); }
+.needle::before { content: ""; position: absolute; top: 0; left: -5px; border: 6px solid transparent; border-top-color: var(--accent); }
+.demo-note { padding: 14px 20px 16px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; }
 
-.logos { display: flex; gap: 10px; flex-wrap: wrap; }
-.logos span { display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px; border-radius: 14px; background: rgba(0, 0, 0, .25); border: 1px solid var(--line); font-weight: 600; font-size: 15px; }
-.logos i { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font: 800 13px Onest; font-style: normal; }
+/* окно приложения с подсветкой */
+section { padding-top: 132px; }
+.sec-lead { color: var(--muted); font-size: 18px; margin-top: 18px; max-width: 34em; }
+.shot { transition: --sx .45s, --sy .45s, --sr .45s; position: relative; margin-top: 48px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 40px 100px -40px rgba(0, 0, 0, .8); }
+.shot::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(circle at var(--sx) var(--sy), transparent var(--sr), var(--shade) calc(var(--sr) + 40px)); }
+.shot.lit::after { opacity: 1; }
+.parts { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px 28px; margin-top: 36px; }
+.parts li { padding: 14px 16px 16px; margin: 0 -16px; border-radius: 14px; cursor: default; transition: background .2s; }
+.parts li:hover, .parts li:focus-visible, .parts li.on { background: var(--surface); }
+.parts li h3 { display: flex; align-items: center; gap: 10px; }
+.parts li h3::before { content: ""; width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--accent); flex: none; transition: background .2s; }
+.parts li.on h3::before, .parts li:hover h3::before { background: var(--accent); }
+.parts p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
+.hint { color: var(--dim); font-size: 14px; margin-top: 14px; }
+
+/* без комнаты */
+.solo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; }
+.solo dl { display: grid; gap: 26px; }
+.solo dt { font-weight: 600; font-size: 19px; }
+.solo dd { color: var(--muted); font-size: 16px; margin-top: 4px; max-width: 36em; }
+kbd { font: 600 13px Onest; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); }
 
 /* шаги */
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
-.step { padding: 28px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
-.step .n { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 700; font-size: 18px; color: #190d14; background: var(--grad); }
-.step h3 { font-size: 20px; font-weight: 600; margin-top: 18px; letter-spacing: -.015em; }
-.step p { color: var(--muted); font-size: 15.5px; margin-top: 6px; }
-.notice { display: flex; gap: 14px; align-items: flex-start; margin-top: 16px; padding: 18px 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 15px; }
-.notice svg { width: 22px; height: 22px; color: var(--a1); flex: none; margin-top: 1px; }
+.steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 52px; counter-reset: s; }
+.steps li { counter-increment: s; }
+.steps li::before { content: counter(s); display: block; font: 500 64px/1 Unbounded; color: var(--accent); letter-spacing: -.04em; margin-bottom: 18px; }
+.steps p { color: var(--muted); font-size: 16px; margin-top: 8px; }
+.notice { display: flex; gap: 14px; margin-top: 48px; padding: 18px 20px; border-radius: 14px; background: var(--surface); color: var(--muted); font-size: 15px; max-width: 780px; }
+.notice svg { width: 22px; height: 22px; color: var(--accent); flex: none; margin-top: 1px; }
 .notice b { color: var(--text); font-weight: 600; }
 
-/* финал */
-.final { position: relative; overflow: hidden; margin-top: 120px; padding: 72px 32px; border-radius: 32px; text-align: center; border: 1px solid var(--line-2);
-  background: radial-gradient(70% 120% at 50% 0%, rgba(242, 96, 156, .28), transparent 70%), radial-gradient(50% 90% at 10% 100%, rgba(255, 179, 92, .2), transparent 70%), var(--bg-2); }
-.final h2 { margin: 0 auto; }
-.final p { color: var(--muted); margin: 14px auto 30px; max-width: 480px; }
-footer { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 44px 0 52px; color: var(--dim); font-size: 14px; }
-footer a { color: var(--muted); }
+.final { padding: 150px 0 40px; }
+.final h2 { max-width: 16ch; }
+.final .cta { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-top: 36px; }
+.final small { color: var(--dim); font-size: 14px; }
+footer { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; margin-top: 80px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; }
+footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 footer a:hover { color: var(--text); }
 
 @media (max-width: 980px) {
-  .hero { grid-template-columns: 1fr; padding-top: 56px; gap: 64px; }
-  .hero-art { width: min(320px, 78%); }
-  .pill.p1 { left: -40px; } .pill.p2 { right: -34px; }
-  .bento { grid-template-columns: 1fr 1fr; }
-  .tile, .tile.w3 { grid-column: span 1; }
-  .tile.w4, .tile.wide { grid-column: span 2; }
-  .steps { grid-template-columns: 1fr; }
+  .parts { grid-template-columns: 1fr 1fr; }
+  .solo { grid-template-columns: 1fr; gap: 32px; }
+  .lane { grid-template-columns: 140px 1fr 72px; }
 }
 @media (max-width: 680px) {
   nav .links { display: none; }
-  .bento { grid-template-columns: 1fr; }
-  .tile, .tile.w3, .tile.w4, .tile.wide { grid-column: span 1; }
-  .tile.wide { flex-direction: column; align-items: stretch; }
-  .tile.wide .txt { padding: 26px 26px 0; }
-  .tile.wide .art { padding: 22px 26px 26px; }
-  section { padding-top: 88px; }
-  .lead { font-size: 17.5px; }
-  .pill { font-size: 13px; padding: 8px 12px; }
-  .pill.p1 { left: -18px; top: 30px; } .pill.p2 { right: -16px; }
-  .final { padding: 56px 22px; }
+  .hero { padding-top: 48px; }
+  .hero .lead { font-size: 17.5px; }
+  .demo { margin-top: 44px; border-radius: 18px; }
+  .demo-bar { flex-wrap: wrap; gap: 12px 14px; padding: 14px 16px; }
+  .room { margin-left: 0; width: 100%; justify-content: space-between; }
+  .lane { grid-template-columns: 1fr auto; grid-template-rows: auto 56px; height: auto; padding: 8px 0 4px; }
+  .who { padding-left: 16px; }
+  .who .av { width: 28px; height: 28px; font-size: 12px; }
+  .off { padding-right: 16px; grid-row: 1; grid-column: 2; }
+  .lane canvas { grid-column: 1 / -1; height: 52px; margin-top: 6px; }
+  .demo-note { padding: 12px 16px 14px; }
+  section { padding-top: 96px; }
+  .parts { grid-template-columns: 1fr; }
+  .shot { position: sticky; top: 76px; z-index: 5; margin-top: 36px; box-shadow: 0 0 0 12px var(--bg); }
+  .steps { grid-template-columns: 1fr; gap: 32px; }
+  .steps li::before { font-size: 48px; margin-bottom: 10px; }
+  .final { padding-top: 110px; }
 }
-@media (prefers-reduced-motion: reduce) { .search .caret { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .shot { transition: none; }
+  .code.on b { animation: none; }
+}
 </style>
 </head>
 <body>
-<div class="glow"></div>
 <nav><div class="wrap">
-  <a class="logo" href="#"><img src="img/icon.png" alt=""><span>flow</span></a>
-  <div class="links"><a href="#features">Возможности</a><a href="#start">Как начать</a><a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe">Запасная ссылка</a></div>
-  <a class="btn primary sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Скачать</a>
+  <a class="logo" href="#"><img src="img/icon.png" alt="">flow</a>
+  <div class="links"><a href="#room">Комната</a><a href="#start">Как начать</a><a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe">Запасная ссылка</a></div>
+  <a class="btn lamp sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Скачать</a>
 </div></nav>
 
 <main class="wrap">
   <header class="hero">
-    <div>
-      <span class="eyebrow"><b>0.6.6</b>Бесплатно для Windows 10 и 11</span>
-      <h1>Слушайте музыку <span class="g">вместе</span>,&nbsp;секунда в&nbsp;секунду</h1>
-      <p class="lead">Создай комнату, отправь другу код — и трек зазвучит у вас одновременно. Общий плейлист, чат и волна, которая сама подбирает музыку.</p>
-      <div class="cta">
-        <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
-        <a class="btn ghost" href="#features">Возможности</a>
-      </div>
-      <div class="facts">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg>Обновляется сама</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/></svg>115 МБ</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/></svg>Без рекламы</span>
-      </div>
+    <h1>Слушайте вместе. Секунда в&nbsp;секунду.</h1>
+    <p class="lead">Flow — плеер для Windows с комнатами. Создай комнату, отправь другу код, и трек зазвучит у вас одновременно, даже если вы в разных городах.</p>
+    <div class="cta">
+      <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
+      <small>Версия 0.6.6, бесплатно<br>Windows 10 и 11, 110 МБ</small>
     </div>
-    <div class="hero-art">
-      <img class="chat" src="img/crop-chat.webp" alt="Чат комнаты Flow" width="600" height="860">
-      <div class="pill p1"><i></i>синхронно ±4 мс</div>
-      <div class="pill p2"><span class="av"><b style="background:#ec4899">А</b><b style="background:#f59e0b">М</b><b style="background:#ef4444">Л</b></span>3 слушателя</div>
+
+    <div class="demo paused" id="demo">
+      <div class="demo-bar">
+        <button class="play" id="play" aria-label="Пауза у всех"><svg class="i-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg><svg class="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15L19.5 12z"/></svg></button>
+        <div class="now"><b>One More Time</b><span>Daft Punk, <span id="time">0:00</span> из 5:20</span></div>
+        <div class="room">
+          <span class="state"><i></i><span id="state">Подключаемся</span></span>
+          <div class="code" id="egg" title="Код комнаты"><b>L</b><b>U</b><b>C</b><b>R</b><b>I</b><b>X</b></div>
+        </div>
+      </div>
+      <div class="lanes" id="lanes">
+        <div class="lane" style="--c: var(--hyrax)"><div class="who"><span class="av">H</span><div><b>Hyrax</b><span>Москва</span></div></div><canvas></canvas><div class="off">—</div></div>
+        <div class="lane" style="--c: var(--lucrix)"><div class="who"><span class="av">L</span><div><b>Lucrix</b><span>Уфа</span></div></div><canvas></canvas><div class="off">—</div></div>
+        <div class="lane" style="--c: var(--miles)"><div class="who"><span class="av">M</span><div><b>Miles</b><span>Новосибирск</span></div></div><canvas></canvas><div class="off">—</div></div>
+        <div class="needle" id="needle"></div>
+      </div>
+      <p class="demo-note">Потяни любую дорожку, чтобы перемотать: трек перескочит у всех троих сразу.</p>
     </div>
   </header>
 
-  <div class="window"><img src="img/room.webp" alt="Комната Flow: плеер, общий плейлист, участники и чат" width="1980" height="1260"></div>
-  <p class="caption">Комната «Вечерний вайб»: у всех троих играет один и тот же момент трека</p>
+  <section id="room">
+    <h2>Что есть в комнате</h2>
+    <p class="sec-lead">Выбери пункт, и он подсветится в окне. Это настоящий интерфейс Flow, а не макет.</p>
+    <div class="shot" id="shot"><img src="img/room.webp" alt="Комната Flow: плеер, общий плейлист, участники и чат" width="1980" height="1260"></div>
+    <ul class="parts" id="parts">
+      <li tabindex="0" data-x="35.5" data-y="9.7" data-r="70"><h3>Код комнаты</h3><p>Шесть символов. Друг вводит их, и он внутри.</p></li>
+      <li tabindex="0" data-x="45.3" data-y="9.7" data-r="60"><h3>Волна</h3><p>Очередь не кончается: похожие треки подбираются сами.</p></li>
+      <li tabindex="0" data-x="59.3" data-y="9.7" data-r="80"><h3>Кто слушает</h3><p>Все, кто в комнате сейчас, с аватарками. Можно даже гифку.</p></li>
+      <li tabindex="0" data-x="51.8" data-y="9.7" data-r="40"><h3>Хозяин решает</h3><p>Закрыть управление, выгнать участника или удалить комнату.</p></li>
+      <li tabindex="0" data-x="80.8" data-y="10.2" data-r="120"><h3>Поиск</h3><p>Пишешь название и жмёшь Enter. Flow сам находит нужную версию, а каверы и ремиксы ставит, только если попросишь.</p></li>
+      <li tabindex="0" data-x="45" data-y="66" data-r="260"><h3>Общий плейлист</h3><p>Добавлять треки может каждый, порядок видят все.</p></li>
+      <li tabindex="0" data-x="82.8" data-y="52" data-r="290"><h3>Чат</h3><p>Обсуждать трек прямо во время прослушивания, с эмодзи.</p></li>
+      <li tabindex="0" data-x="80.5" data-y="93.5" data-r="60"><h3>Синхронно</h3><p>Flow сверяет часы с сервером и подстраивает звук, пока вы слушаете.</p></li>
+    </ul>
+  </section>
 
-  <section id="features">
-    <div class="kicker">Возможности</div>
-    <h2>Всё для совместного прослушивания — и ничего лишнего</h2>
-    <p class="sec-lead">Никаких «три, два, один — жмём плей». Flow сверяет часы с сервером и подстраивает звук, пока вы слушаете.</p>
-    <div class="bento">
-      <div class="tile w4">
-        <div class="txt"><h3>Синхронно до миллисекунд</h3><p>Расхождение между друзьями — считанные миллисекунды. Пауза, перемотка и следующий трек срабатывают у всех сразу.</p></div>
-        <div class="art"><img src="img/crop-sync.webp" alt="Плеер Flow с индикатором синхронизации" width="1120" height="135" loading="lazy"></div>
-      </div>
-      <div class="tile">
-        <div class="txt"><h3>Комнаты по коду</h3><p>Шесть символов — и друг внутри.</p></div>
-        <div class="art"><div class="code" id="egg"><b>L</b><b>U</b><b>C</b><b>R</b><b>I</b><b>X</b></div></div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>Название + Enter</h3><p>Пишешь трек — Flow сам находит лучшую версию и ставит в очередь. Каверы и ремиксы — только если попросишь.</p></div>
-        <div class="art">
-          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span class="q">Daft Punk One More Time</span><span class="caret"></span><kbd>Enter</kbd></div>
-          <div class="result"><div class="cv"></div><div><b>One More Time</b><small>Daft Punk · 5:22</small></div><span class="ok">✓ в очереди</span></div>
-        </div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>Моя волна</h3><p>Включи — и очередь не кончается: похожие треки подбираются сами.</p></div>
-        <div class="art bleed"><img src="img/crop-wave.webp" alt="Очередь с треками, которые подобрала волна" width="890" height="470" loading="lazy"></div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>Хозяин комнаты решает</h3><p>Закрыть управление, выгнать участника или удалить комнату — в один клик.</p></div>
-        <div class="art"><img src="img/crop-head.webp" alt="Шапка комнаты: код, волна, замок, участники" width="735" height="95" loading="lazy"></div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>И просто плеер</h3><p>Без комнаты — обычный плеер с очередью и волной. Медиаклавиши работают даже в свёрнутом окне.</p></div>
-        <div class="art"><div class="keys">
-          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 6v12L9.5 12zM6 6h2v12H6z"/></svg><small>Fn + F7</small></span>
-          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg><small>Fn + F8</small></span>
-          <span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6v12l8.5-6zM16 6h2v12h-2z"/></svg><small>Fn + F9</small></span>
-        </div></div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>Плейлисты с кодом</h3><p>Собери плейлист и отправь другу код: он вставит его в поиск — и все треки сразу в очереди.</p></div>
-        <div class="art bleed"><img src="img/crop-playlist.webp" alt="Плейлист «Ночная поездка» с кодом" width="1450" height="800" loading="lazy"></div>
-      </div>
-      <div class="tile w3">
-        <div class="txt"><h3>Твои лайки — с собой</h3><p>Подключи Яндекс Музыку или SoundCloud — лайки сами появятся в плейлисте «Мне нравится» и будут обновляться при каждом запуске.</p></div>
-        <div class="art"><div class="logos">
-          <span><i style="background:#ffcc00;color:#000">Я</i>Яндекс Музыка</span>
-          <span><i style="background:#ff5500;color:#fff">SC</i>SoundCloud</span>
-          <span><i style="background:#7e1bcc;color:#fff">A</i>Audius</span>
-        </div></div>
-      </div>
-    </div>
+  <section class="solo">
+    <h2>И просто плеер, когда друзей нет онлайн</h2>
+    <dl>
+      <div><dt>Своя очередь и волна</dt><dd>Без комнаты Flow работает как обычный плеер. Зайдёшь в комнату — твоя музыка встанет на паузу.</dd></div>
+      <div><dt>Медиаклавиши</dt><dd>Пауза и переключение треков с клавиатуры, даже когда окно свёрнуто: <kbd>Fn</kbd> + <kbd>F7</kbd> <kbd>F8</kbd> <kbd>F9</kbd>.</dd></div>
+      <div><dt>Плейлисты с кодом</dt><dd>Собери плейлист и отправь другу его код. Он вставит код в поиск, и все треки окажутся в очереди.</dd></div>
+      <div><dt>Лайки из Яндекс Музыки и SoundCloud</dt><dd>Подключи аккаунт, и лайки появятся в плейлисте «Мне нравится». Обновляются при каждом запуске.</dd></div>
+    </dl>
   </section>
 
   <section id="start">
-    <div class="kicker">Как начать</div>
-    <h2>Три шага до общего плейлиста</h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><h3>Скачай и установи</h3><p>Установщик ставит Flow в один клик. Дальше новые версии приходят сами — кнопкой в окне программы.</p></div>
-      <div class="step"><div class="n">2</div><h3>Создай аккаунт</h3><p>Логин и пароль — всё. Друзья увидят твоё имя и аватарку, можно даже гифку.</p></div>
-      <div class="step"><div class="n">3</div><h3>Позови друзей</h3><p>Создай комнату и отправь код. Как только друг зайдёт — вы слушаете вместе.</p></div>
-    </div>
+    <h2>Как начать</h2>
+    <ol class="steps">
+      <li><h3>Скачай и установи</h3><p>Установка в один клик. Новые версии потом приходят сами, кнопкой в окне программы.</p></li>
+      <li><h3>Создай аккаунт</h3><p>Только логин и пароль. Друзья увидят твоё имя и аватарку.</p></li>
+      <li><h3>Позови друзей</h3><p>Создай комнату и отправь код. Как только друг зайдёт, вы слушаете вместе.</p></li>
+    </ol>
     <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-      <div>Windows может показать «Система Windows защитила ваш компьютер» — у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</div></div>
+      <div>Windows может показать «Система Windows защитила ваш компьютер»: у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</div></div>
   </section>
 
   <div class="final">
-    <h2>Музыка лучше, когда она общая</h2>
-    <p>Скачай Flow, создай комнату и отправь код тому, с кем хочется слушать.</p>
-    <a class="btn primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.6.6</a>
+    <h2>Позови тех, с кем хочется слушать</h2>
+    <div class="cta">
+      <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.6.6</a>
+      <small>Не скачивается? <a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe" style="text-decoration:underline;text-underline-offset:3px">Запасная ссылка</a></small>
+    </div>
   </div>
 
   <footer>
-    <span>Flow · 0.6.6 · Windows 10/11</span>
-    <span>Шрифты <a href="https://fonts.google.com/specimen/Onest">Onest</a> и <a href="https://github.com/googlefonts/noto-emoji">Noto Emoji</a> (OFL)</span>
+    <span>Flow 0.6.6 для Windows 10 и 11</span>
+    <span>Шрифты <a href="https://fonts.google.com/specimen/Unbounded">Unbounded</a> и <a href="https://fonts.google.com/specimen/Onest">Onest</a> (OFL)</span>
   </footer>
 </main>
 <script>
-  // пасхалка: код комнаты LUCRIX
-  const egg = document.getElementById("egg");
-  egg.addEventListener("click", () => {
-    egg.classList.remove("on");
-    void egg.offsetWidth;  // перезапуск анимации при повторном клике
-    egg.classList.add("on");
-  });
+// ---------- живое демо: у всех один и тот же трек, игла общая ----------
+const demo = document.getElementById("demo"), lanesEl = document.getElementById("lanes"), needle = document.getElementById("needle");
+const lanes = [...lanesEl.querySelectorAll(".lane")].map(el => ({
+  el, cv: el.querySelector("canvas"), off: el.querySelector(".off"),
+  color: getComputedStyle(el).getPropertyValue("--c").trim() || "#fff", drift: 0,
+}));
+const LEN = 320, BPM = 123, BAR = 60 / 123 / 4;  // длина трека, темп, шаг столбика (с)
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = 47, playing = !reduce, last = performance.now(), synced = false;
+
+// громкость трека в момент s: удар каждую долю, тише во вступлении и в брейке
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function amp(s) {
+  if (s < 0 || s > LEN) return 0;
+  const i = Math.floor(s / BAR + 1e-6);
+  const kick = Math.exp(-(i % 4) * .9), section = s < 12 ? .45 : (s > 150 && s < 182) ? .55 : 1;
+  return Math.min(1, (.2 + .62 * kick + .22 * hash(i)) * section);
+}
+function pxPerSec() { return innerWidth < 680 ? 34 : 64; }
+
+function draw() {
+  const pps = pxPerSec(), dpr = devicePixelRatio || 1;
+  for (const L of lanes) {
+    const w = L.cv.clientWidth, h = L.cv.clientHeight;
+    if (L.cv.width !== w * dpr) { L.cv.width = w * dpr; L.cv.height = h * dpr; }
+    const g = L.cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    const center = w / 2, now = t + L.drift, step = BAR * pps, bw = Math.max(2, step * .5);
+    const first = Math.floor((now - center / pps) / BAR);
+    for (let i = first; ; i++) {
+      const s = i * BAR, x = center + (s - now) * pps;
+      if (x > w) break;
+      const a = amp(s); if (!a) continue;
+      const bh = Math.max(2, a * (h - 8));
+      g.globalAlpha = s <= now ? 1 : .32;
+      g.fillStyle = L.color;
+      g.beginPath(); g.roundRect(x, (h - bh) / 2, bw, bh, bw / 2); g.fill();
+    }
+  }
+  // игла стоит по центру области волн
+  const r = lanes[0].cv.getBoundingClientRect(), box = lanesEl.getBoundingClientRect();
+  needle.style.left = (r.left - box.left + r.width / 2) + "px";
+  const m = Math.floor(t / 60), sec = Math.floor(t % 60);
+  document.getElementById("time").textContent = m + ":" + String(sec).padStart(2, "0");
+}
+
+function showOffsets() {
+  for (const L of lanes) {
+    const ms = Math.round(L.drift * 1000);
+    L.off.textContent = (ms > 0 ? "+" : ms < 0 ? "−" : "±") + Math.abs(ms) + " мс";
+    L.off.classList.toggle("far", Math.abs(ms) > 30);
+  }
+}
+
+// дорожки «догоняют» друг друга: экспоненциально к небольшому шуму в пару мс
+function settle(dt) {
+  for (const [k, L] of lanes.entries()) {
+    const target = synced ? (Math.sin(performance.now() / 900 + k * 2.1) * .003) : L.drift;
+    L.drift += (target - L.drift) * Math.min(1, dt * 3.2);
+  }
+}
+
+function frame(ts) {
+  const dt = Math.min(.1, (ts - last) / 1000); last = ts;
+  if (playing && !dragging) { t += dt; if (t > LEN) t = 0; }
+  settle(dt); draw(); showOffsets();
+  requestAnimationFrame(frame);
+}
+
+// первая загрузка: дорожки разъехались, через мгновение сходятся — момент синхронизации
+function start() {
+  if (reduce) { synced = true; demo.classList.add("synced"); document.getElementById("state").textContent = "Синхронно"; }
+  else {
+    lanes[0].drift = 0; lanes[1].drift = -.34; lanes[2].drift = .21;
+    setTimeout(() => { synced = true; demo.classList.add("synced"); document.getElementById("state").textContent = "Синхронно"; }, 900);
+  }
+  demo.classList.toggle("paused", !playing);
+  requestAnimationFrame(ts => { last = ts; frame(ts); });
+}
+
+const playBtn = document.getElementById("play");
+function setPlaying(p) { playing = p; demo.classList.toggle("paused", !p); playBtn.setAttribute("aria-label", p ? "Пауза у всех" : "Играть у всех"); }
+playBtn.addEventListener("click", () => setPlaying(!playing));
+
+// перемотка: тянешь дорожку или кликаешь — у остальных лёгкий рывок, который сразу гасится
+let dragging = false, downX = 0, downT = 0, moved = false;
+lanesEl.addEventListener("pointerdown", e => {
+  dragging = true; moved = false; downX = e.clientX; downT = t;
+  lanesEl.setPointerCapture(e.pointerId); lanesEl.classList.add("drag");
+});
+lanesEl.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const dx = e.clientX - downX;
+  if (Math.abs(dx) > 3) moved = true;
+  t = Math.max(0, Math.min(LEN, downT - dx / pxPerSec()));
+});
+function release(e) {
+  if (!dragging) return;
+  dragging = false; lanesEl.classList.remove("drag");
+  if (!moved && e.type === "pointerup") {
+    const r = lanes[0].cv.getBoundingClientRect();
+    if (e.clientX > r.left) t = Math.max(0, Math.min(LEN, t + (e.clientX - (r.left + r.width / 2)) / pxPerSec()));
+  }
+  if (synced) lanes.forEach((L, k) => { if (k) L.drift = (k === 1 ? 1 : -1) * (.04 + Math.random() * .05); });
+}
+lanesEl.addEventListener("pointerup", release);
+lanesEl.addEventListener("pointercancel", release);
+
+start();
+
+// ---------- подсветка частей окна ----------
+const shot = document.getElementById("shot"), parts = [...document.querySelectorAll("#parts li")];
+function light(li) {
+  parts.forEach(p => p.classList.toggle("on", p === li));
+  if (!li) { shot.classList.remove("lit"); return; }
+  const scale = shot.clientWidth / 1980;
+  shot.style.setProperty("--sx", li.dataset.x + "%");
+  shot.style.setProperty("--sy", li.dataset.y + "%");
+  shot.style.setProperty("--sr", Math.max(18, li.dataset.r * scale) + "px");
+  shot.classList.add("lit");
+}
+parts.forEach(li => {
+  li.addEventListener("mouseenter", () => light(li));
+  li.addEventListener("focus", () => light(li));
+  li.addEventListener("click", () => light(li.classList.contains("on") && matchMedia("(hover: none)").matches ? null : li));
+});
+document.getElementById("parts").addEventListener("mouseleave", () => light(null));
+document.getElementById("parts").addEventListener("focusout", e => { if (!e.currentTarget.contains(e.relatedTarget)) light(null); });
+
+// ---------- пасхалка: код комнаты LUCRIX ----------
+const egg = document.getElementById("egg");
+egg.addEventListener("click", () => {
+  egg.classList.remove("on");
+  void egg.offsetWidth;  // перезапуск анимации при повторном клике
+  egg.classList.add("on");
+});
 </script>
 </body>
 </html>
