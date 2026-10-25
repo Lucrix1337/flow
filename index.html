@@ -128,8 +128,8 @@ section { padding-top: 132px; }
 .solo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; }
 .solo dl { display: grid; gap: 26px; }
 .solo dt { font-weight: 600; font-size: 19px; }
-.solo dd { color: var(--muted); font-size: 16px; margin-top: 4px; max-width: 36em; }
 kbd { font: 600 13px Onest; padding: 1px 7px; border-radius: 6px; border: 1px solid var(--line-2); background: var(--surface); color: var(--text); }
+.solo dd { color: var(--muted); font-size: 16px; margin-top: 4px; max-width: 36em; }
 
 /* шаги */
 .steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 52px; counter-reset: s; }
@@ -190,7 +190,7 @@ footer a:hover { color: var(--text); }
 <main class="wrap">
   <header class="hero">
     <h1>Слушайте вместе. Секунда в&nbsp;секунду.</h1>
-    <p class="lead">Flow — плеер для Windows с комнатами. Создай комнату, отправь другу код, и трек зазвучит у вас одновременно, даже если вы в разных городах.</p>
+    <p class="lead">Flow — музыкальный плеер для Windows, в котором можно слушать треки вместе с друзьями. Создаёшь комнату, кидаешь друзьям её код, они заходят, и у всех играет один и тот же трек с одного и того же места.</p>
     <div class="cta">
       <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
       <small>Версия 0.6.6, бесплатно<br>Windows 10 и 11, 110 МБ</small>
@@ -206,54 +206,54 @@ footer a:hover { color: var(--text); }
         </div>
       </div>
       <div class="lanes" id="lanes">
-        <div class="lane" style="--c: var(--hyrax)"><div class="who"><span class="av">H</span><div><b>Hyrax</b><span>Москва</span></div></div><canvas></canvas><div class="off">—</div></div>
+        <div class="lane" style="--c: var(--hyrax)"><div class="who"><span class="av">H</span><div><b>Hyrax</b><span>Сочи</span></div></div><canvas></canvas><div class="off">—</div></div>
         <div class="lane" style="--c: var(--lucrix)"><div class="who"><span class="av">L</span><div><b>Lucrix</b><span>Уфа</span></div></div><canvas></canvas><div class="off">—</div></div>
-        <div class="lane" style="--c: var(--miles)"><div class="who"><span class="av">M</span><div><b>Miles</b><span>Новосибирск</span></div></div><canvas></canvas><div class="off">—</div></div>
+        <div class="lane" style="--c: var(--miles)"><div class="who"><span class="av">M</span><div><b>Miles</b><span>Москва</span></div></div><canvas></canvas><div class="off">—</div></div>
         <div class="needle" id="needle"></div>
       </div>
-      <p class="demo-note">Потяни любую дорожку, чтобы перемотать: трек перескочит у всех троих сразу.</p>
+      <p class="demo-note">Попробуй перетащить любую дорожку: трек перемотается сразу у всех троих.</p>
     </div>
   </header>
 
   <section id="room">
-    <h2>Что есть в комнате</h2>
-    <p class="sec-lead">Выбери пункт, и он подсветится в окне. Это настоящий интерфейс Flow, а не макет.</p>
+    <h2>Как выглядит комната</h2>
+    <p class="sec-lead">Нажми на любой пункт ниже, и на скриншоте подсветится, где это находится.</p>
     <div class="shot" id="shot"><img src="img/room.webp" alt="Комната Flow: плеер, общий плейлист, участники и чат" width="1980" height="1260"></div>
     <ul class="parts" id="parts">
-      <li tabindex="0" data-x="35.5" data-y="9.7" data-r="70"><h3>Код комнаты</h3><p>Шесть символов. Друг вводит их, и он внутри.</p></li>
-      <li tabindex="0" data-x="45.3" data-y="9.7" data-r="60"><h3>Волна</h3><p>Очередь не кончается: похожие треки подбираются сами.</p></li>
-      <li tabindex="0" data-x="59.3" data-y="9.7" data-r="80"><h3>Кто слушает</h3><p>Все, кто в комнате сейчас, с аватарками. Можно даже гифку.</p></li>
-      <li tabindex="0" data-x="51.8" data-y="9.7" data-r="40"><h3>Хозяин решает</h3><p>Закрыть управление, выгнать участника или удалить комнату.</p></li>
-      <li tabindex="0" data-x="80.8" data-y="10.2" data-r="120"><h3>Поиск</h3><p>Пишешь название и жмёшь Enter. Flow сам находит нужную версию, а каверы и ремиксы ставит, только если попросишь.</p></li>
-      <li tabindex="0" data-x="45" data-y="66" data-r="260"><h3>Общий плейлист</h3><p>Добавлять треки может каждый, порядок видят все.</p></li>
-      <li tabindex="0" data-x="82.8" data-y="52" data-r="290"><h3>Чат</h3><p>Обсуждать трек прямо во время прослушивания, с эмодзи.</p></li>
-      <li tabindex="0" data-x="80.5" data-y="93.5" data-r="60"><h3>Синхронно</h3><p>Flow сверяет часы с сервером и подстраивает звук, пока вы слушаете.</p></li>
+      <li tabindex="0" data-x="35.5" data-y="9.7" data-r="70"><h3>Код комнаты</h3><p>У каждой комнаты есть код из шести букв и цифр. Отправляешь его другу, он вводит код во Flow и попадает к тебе в комнату.</p></li>
+      <li tabindex="0" data-x="45.3" data-y="9.7" data-r="60"><h3>Волна</h3><p>Если её включить, Flow будет добавлять в очередь похожие треки, когда плейлист заканчивается.</p></li>
+      <li tabindex="0" data-x="59.3" data-y="9.7" data-r="80"><h3>Участники</h3><p>Здесь видно, кто сейчас в комнате. Аватаркой можно поставить любую картинку или гифку.</p></li>
+      <li tabindex="0" data-x="52.5" data-y="9.7" data-r="55"><h3>Управление комнатой</h3><p>Создатель комнаты может запретить остальным переключать треки, выгнать кого-то или удалить комнату.</p></li>
+      <li tabindex="0" data-x="80.8" data-y="10.2" data-r="120"><h3>Поиск</h3><p>Вводишь название трека, жмёшь Enter, и он встаёт в очередь. Ремиксы и каверы попадаются, только если написать это в запросе.</p></li>
+      <li tabindex="0" data-x="45" data-y="66" data-r="260"><h3>Общий плейлист</h3><p>Очередь у комнаты одна на всех: добавлять треки может любой участник, и все видят, что будет играть дальше.</p></li>
+      <li tabindex="0" data-x="82.8" data-y="52" data-r="290"><h3>Чат</h3><p>Можно переписываться, пока играет музыка. Там же видно, кто какой трек добавил.</p></li>
+      <li tabindex="0" data-x="80.5" data-y="93.5" data-r="60"><h3>Синхронизация</h3><p>Flow постоянно сверяется с сервером и подгоняет воспроизведение, так что разница между участниками — несколько миллисекунд. Индикатор внизу показывает, насколько точно.</p></li>
     </ul>
   </section>
 
   <section class="solo">
-    <h2>И просто плеер, когда друзей нет онлайн</h2>
+    <h2>Без друзей тоже работает</h2>
     <dl>
-      <div><dt>Своя очередь и волна</dt><dd>Без комнаты Flow работает как обычный плеер. Зайдёшь в комнату — твоя музыка встанет на паузу.</dd></div>
-      <div><dt>Медиаклавиши</dt><dd>Пауза и переключение треков с клавиатуры, даже когда окно свёрнуто: <kbd>Fn</kbd> + <kbd>F7</kbd> <kbd>F8</kbd> <kbd>F9</kbd>.</dd></div>
-      <div><dt>Плейлисты с кодом</dt><dd>Собери плейлист и отправь другу его код. Он вставит код в поиск, и все треки окажутся в очереди.</dd></div>
-      <div><dt>Лайки из Яндекс Музыки и SoundCloud</dt><dd>Подключи аккаунт, и лайки появятся в плейлисте «Мне нравится». Обновляются при каждом запуске.</dd></div>
+      <div><dt>Обычный плеер</dt><dd>Без комнаты Flow работает как обычный плеер со своей очередью и волной. Когда заходишь в комнату, твоя музыка ставится на паузу.</dd></div>
+      <div><dt>Медиаклавиши</dt><dd>Ставить на паузу и переключать треки можно клавишами на клавиатуре, даже если Flow свёрнут. На ноутбуках это обычно <kbd>Fn</kbd> + <kbd>F7</kbd> <kbd>F8</kbd> <kbd>F9</kbd>.</dd></div>
+      <div><dt>Плейлисты</dt><dd>Свой плейлист можно отправить другу: у плейлиста тоже есть код. Друг вставляет его в поиск, и все треки добавляются в очередь.</dd></div>
+      <div><dt>Лайки из Яндекс Музыки и SoundCloud</dt><dd>Если подключить аккаунт, твои лайки перенесутся в плейлист «Мне нравится» и будут обновляться при каждом запуске.</dd></div>
     </dl>
   </section>
 
   <section id="start">
     <h2>Как начать</h2>
     <ol class="steps">
-      <li><h3>Скачай и установи</h3><p>Установка в один клик. Новые версии потом приходят сами, кнопкой в окне программы.</p></li>
-      <li><h3>Создай аккаунт</h3><p>Только логин и пароль. Друзья увидят твоё имя и аватарку.</p></li>
-      <li><h3>Позови друзей</h3><p>Создай комнату и отправь код. Как только друг зайдёт, вы слушаете вместе.</p></li>
+      <li><h3>Скачай и установи</h3><p>Установщик всё сделает сам. Обновления потом ставятся прямо из программы, заново ничего качать не нужно.</p></li>
+      <li><h3>Зарегистрируйся</h3><p>Нужны только логин и пароль, без почты и телефона.</p></li>
+      <li><h3>Позови друзей</h3><p>Нажми «Создать комнату» и отправь код друзьям. Когда они зайдут, музыка будет играть у всех одновременно.</p></li>
     </ol>
     <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
       <div>Windows может показать «Система Windows защитила ваш компьютер»: у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</div></div>
   </section>
 
   <div class="final">
-    <h2>Позови тех, с кем хочется слушать</h2>
+    <h2>Скачай Flow и позови друзей</h2>
     <div class="cta">
       <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.6.6</a>
       <small>Не скачивается? <a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe" style="text-decoration:underline;text-underline-offset:3px">Запасная ссылка</a></small>
