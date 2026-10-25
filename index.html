@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flow — музыка с друзьями, синхронно</title>
-<meta name="description" content="Flow — плеер для Windows с комнатами: отправь другу код, и трек зазвучит у вас одновременно. Общий плейлист, волна, чат.">
+<meta name="description" content="Flow — плеер для Windows и Mac с комнатами: отправь другу код, и трек зазвучит у вас одновременно. Общий плейлист, волна, чат.">
 <meta property="og:title" content="Flow — музыка с друзьями, синхронно">
 <meta property="og:description" content="Комната по коду, общий плейлист и звук у всех одновременно — с точностью до миллисекунд.">
 <meta property="og:image" content="img/room.webp">
@@ -60,6 +60,11 @@ nav .btn { margin-left: auto; }
 .btn.lamp:hover { filter: brightness(1.08); }
 .btn.lamp:active { transform: translateY(1px); }
 .btn.sm { height: 40px; padding: 0 18px; font-size: 15px; }
+.btn.line { box-shadow: inset 0 0 0 1.5px var(--line-2); color: var(--text); }
+.btn.line:hover { background: var(--surface); }
+.cta .alt { color: var(--dim); font-size: 14px; flex-basis: 100%; margin-top: -8px; }
+.cta .alt a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.cta .alt a:hover { color: var(--text); }
 
 /* первый экран */
 .hero { padding: 60px 0 0; }
@@ -139,6 +144,7 @@ kbd { font: 600 13px Onest; padding: 1px 7px; border-radius: 6px; border: 1px so
 .notice { display: flex; gap: 14px; margin-top: 48px; padding: 18px 20px; border-radius: 14px; background: var(--surface); color: var(--muted); font-size: 15px; max-width: 780px; }
 .notice svg { width: 22px; height: 22px; color: var(--accent); flex: none; margin-top: 1px; }
 .notice b { color: var(--text); font-weight: 600; }
+.notice + .notice { margin-top: 12px; }
 
 .final { padding: 150px 0 40px; }
 .final h2 { max-width: 16ch; }
@@ -184,16 +190,18 @@ footer a:hover { color: var(--text); }
 <nav><div class="wrap">
   <a class="logo" href="#"><img src="img/icon.png" alt="">flow</a>
   <div class="links"><a href="#room">Комната</a><a href="#start">Как начать</a><a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe">Запасная ссылка</a></div>
-  <a class="btn lamp sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Скачать</a>
+  <a class="btn lamp sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe" data-os-link>Скачать</a>
 </div></nav>
 
 <main class="wrap">
   <header class="hero">
     <h1>Слушайте вместе. Секунда в&nbsp;секунду.</h1>
-    <p class="lead">Flow — музыкальный плеер для Windows, в котором можно слушать треки вместе с друзьями. Создаёшь комнату, кидаешь друзьям её код, они заходят, и у всех играет один и тот же трек с одного и того же места.</p>
+    <p class="lead">Flow — музыкальный плеер для Windows и Mac, в котором можно слушать треки вместе с друзьями. Создаёшь комнату, кидаешь друзьям её код, они заходят, и у всех играет один и тот же трек с одного и того же места.</p>
     <div class="cta">
       <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Windows</a>
-      <small>Версия 0.6.6, бесплатно<br>Windows 10 и 11, 110 МБ</small>
+      <a class="btn line" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать для Mac</a>
+      <small>Версия 0.7.0, бесплатно<br>Windows 10 и 11, macOS 12 и новее</small>
+      <span class="alt">Mac на процессоре Intel (до 2020 года) — <a href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-x64.zip">отдельная версия</a></span>
     </div>
 
     <div class="demo paused" id="demo">
@@ -244,28 +252,34 @@ footer a:hover { color: var(--text); }
   <section id="start">
     <h2>Как начать</h2>
     <ol class="steps">
-      <li><h3>Скачай и установи</h3><p>Установщик всё сделает сам. Обновления потом ставятся прямо из программы, заново ничего качать не нужно.</p></li>
+      <li><h3>Скачай и установи</h3><p>На Windows установщик всё сделает сам, обновления потом ставятся прямо из программы. На Mac распакуй архив и перетащи Flow в папку «Программы»; когда выйдет новая версия, Flow покажет кнопку «Скачать».</p></li>
       <li><h3>Зарегистрируйся</h3><p>Нужны только логин и пароль, без почты и телефона.</p></li>
       <li><h3>Позови друзей</h3><p>Нажми «Создать комнату» и отправь код друзьям. Когда они зайдут, музыка будет играть у всех одновременно.</p></li>
     </ol>
     <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
       <div>Windows может показать «Система Windows защитила ваш компьютер»: у Flow пока нет платной цифровой подписи. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</div></div>
+    <div class="notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+      <div>При первом запуске на Mac система скажет, что не может проверить Flow: у него нет подписи Apple. Открой <b>Системные настройки → Конфиденциальность и безопасность</b>, пролистай вниз и нажми <b>«Всё равно открыть»</b>. Это нужно сделать один раз. Если macOS пишет, что Flow «повреждён», открой Терминал и выполни команду <b>xattr -cr /Applications/Flow.app</b>.</div></div>
   </section>
 
   <div class="final">
     <h2>Скачай Flow и позови друзей</h2>
     <div class="cta">
-      <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Скачать Flow 0.6.6</a>
-      <small>Не скачивается? <a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe" style="text-decoration:underline;text-underline-offset:3px">Запасная ссылка</a></small>
+      <a class="btn lamp" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Для Windows</a>
+      <a class="btn line" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>Для Mac</a>
+      <small>Не скачивается? Запасные ссылки: <a href="https://unison.148-253-209-182.sslip.io/download/Flow-Setup.exe" style="text-decoration:underline;text-underline-offset:3px">Windows</a>, <a href="https://unison.148-253-209-182.sslip.io/download/Flow-mac-arm64.zip" style="text-decoration:underline;text-underline-offset:3px">Mac</a></small>
     </div>
   </div>
 
   <footer>
-    <span>Flow 0.6.6 для Windows 10 и 11</span>
+    <span>Flow 0.7.0 для Windows 10 и 11 и macOS 12 и новее</span>
     <span>Шрифты <a href="https://fonts.google.com/specimen/Unbounded">Unbounded</a> и <a href="https://fonts.google.com/specimen/Onest">Onest</a> (OFL)</span>
   </footer>
 </main>
 <script>
+// с Mac кнопка «Скачать» в шапке ведёт на версию для Mac
+if (/Macintosh|Mac OS X/.test(navigator.userAgent)) document.querySelectorAll("[data-os-link]").forEach((a) => { a.href = "https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip"; });
+
 // ---------- живое демо: у всех один и тот же трек, игла общая ----------
 const demo = document.getElementById("demo"), lanesEl = document.getElementById("lanes"), needle = document.getElementById("needle");
 const lanes = [...lanesEl.querySelectorAll(".lane")].map(el => ({
