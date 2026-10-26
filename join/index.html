@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Приглашение в комнату Flow</title>
+<meta name="description" content="Тебя зовут послушать музыку вместе во Flow.">
+<meta property="og:title" content="Тебя зовут в комнату Flow">
+<meta property="og:description" content="Нажми, и Flow откроется сразу в комнате: музыка звучит у всех одновременно.">
+<meta property="og:image" content="../img/room.webp">
+<meta name="theme-color" content="#23112b">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../img/icon.png">
+<link rel="stylesheet" href="../onest.css">
+<style>
+@font-face { font-family: Syne; src: url(../fonts/Syne.ttf); font-weight: 400 800; font-display: swap; }
+:root { --bg: #23112b; --surface: #301a3a; --text: #f7eef6; --muted: #bba5c0; --line: rgba(247, 238, 246, .14); --accent: #ff9b73; --on-accent: #23112b; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: radial-gradient(ellipse at 50% 0%, #3c1d4a, var(--bg) 60%); color: var(--text); font: 400 17px/1.6 Onest, "Segoe UI", system-ui, sans-serif; }
+main { width: min(440px, 100%); text-align: center; }
+.logo { font: 800 44px/1 Syne, sans-serif; letter-spacing: -.075em; margin-bottom: 28px; }
+h1 { font-size: 24px; line-height: 1.3; margin-bottom: 10px; text-wrap: balance; }
+p { color: var(--muted); }
+.code { display: inline-block; margin: 24px 0; padding: 12px 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); font: 700 28px/1 Onest, sans-serif; letter-spacing: .28em; padding-right: calc(22px - .28em); }
+a.btn { display: block; padding: 15px 18px; border-radius: 14px; font-weight: 600; text-decoration: none; margin-bottom: 12px; }
+.open { background: var(--accent); color: var(--on-accent); }
+.get { border: 1px solid var(--line); color: var(--text); }
+.hint { font-size: 14px; margin-top: 18px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo">flow</div>
+  <div id="ok">
+    <h1>Тебя зовут в комнату Flow</h1>
+    <p>Если Flow установлен, он откроется сам и сразу зайдёт в комнату.</p>
+    <div class="code" id="code">······</div>
+    <a class="btn open" id="open" href="#">Открыть во Flow</a>
+    <a class="btn get" href="../">Скачать Flow</a>
+    <p class="hint">Не открылось? Запусти Flow, нажми «Комнаты» → «Присоединиться» и введи этот код.</p>
+  </div>
+  <div id="bad" hidden>
+    <h1>В ссылке нет кода комнаты</h1>
+    <p>Попроси друга скопировать приглашение ещё раз.</p>
+    <a class="btn get" href="../" style="margin-top:24px">На сайт Flow</a>
+  </div>
+</main>
+<script>
+// код комнаты — после «?»: …/flow/join?ABC123 (или #ABC123)
+var code = (location.search.slice(1) || location.hash.slice(1)).replace(/^r=/, "").toUpperCase();
+if (/^[A-Z0-9]{6}$/.test(code)) {
+  var deep = "flow://room/" + code;
+  document.getElementById("code").textContent = code;
+  document.getElementById("open").href = deep;
+  document.title = "Комната " + code + " — Flow";
+  location.href = deep;
+} else {
+  document.getElementById("ok").hidden = true;
+  document.getElementById("bad").hidden = false;
+}
+</script>
+</body>
+</html>
