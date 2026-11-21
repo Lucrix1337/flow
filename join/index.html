@@ -1,8 +1,180 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flow переехал на flowww.space</title>
-<link rel="canonical" href="https://flowww.space/join/">
-<meta http-equiv="refresh" content="0; url=https://flowww.space/join/">
-<script>location.replace("https://flowww.space/join/" + location.search + location.hash);</script>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0a0a12;color:#f4f4f8;font:16px/1.5 system-ui,sans-serif}a{color:#c4b5fd}</style>
-</head><body><p>Сайт Flow теперь здесь: <a href="https://flowww.space/join/">https://flowww.space/join/</a></p></body></html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+// /join/КОД и /join без косой черты → /join/?КОД: стили и скрипты подключены относительными путями от папки /join/
+(function () {
+  try {
+    var p = location.pathname, m = /^(.*\/join)(?:\/([A-Za-z0-9]{6}))?\/?$/.exec(p);
+    if (!m || (!m[2] && /\/$/.test(p)) || !history.replaceState) return;
+    var q = location.search.replace(/^\?/, "");
+    history.replaceState(null, "", m[1] + "/" + (m[2] ? "?" + m[2] + (q ? "&" + q : "") : (q ? "?" + q : "")) + location.hash);
+  } catch (e) { /* остаётся как есть */ }
+})();
+</script>
+<title>Комната во Flow</title>
+<meta name="description" content="Тебя зовут послушать музыку вместе во Flow. Слушать можно в приложении Flow или прямо в браузере.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flow">
+<meta property="og:title" content="Комната во Flow">
+<meta property="og:description" content="Музыка в комнате играет у всех участников одновременно. Слушать можно в приложении Flow или прямо в браузере.">
+<meta property="og:image" content="https://flowww.space/img/room.webp">
+<meta name="theme-color" content="#09080e">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../img/icon.png">
+<link rel="stylesheet" href="../onest.css">
+<link rel="stylesheet" href="../brand.css">
+<link rel="stylesheet" href="join.css?v=2026110202">
+<script src="config.js"></script>
+<script type="module" src="join.js?v=2026110502"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.6v12.8c0 .8.9 1.3 1.6.9l10-6.4a1.05 1.05 0 0 0 0-1.8l-10-6.4C8.9 4.3 8 4.8 8 5.6Z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect fill="currentColor" x="6.5" y="5" width="4" height="14" rx="1.3"/><rect fill="currentColor" x="13.5" y="5" width="4" height="14" rx="1.3"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path fill="currentColor" d="M5 6.4v11.2c0 .8.9 1.2 1.5.8l8.2-5.6a1 1 0 0 0 0-1.6L6.5 5.6C5.9 5.2 5 5.6 5 6.4Z"/><rect fill="currentColor" x="16.5" y="5.5" width="2.6" height="13" rx="1.1"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9.5v5c0 .6.4 1 1 1h3l4.3 3.6c.6.5 1.7.1 1.7-.8V5.7c0-.9-1.1-1.3-1.7-.8L8 8.5H5c-.6 0-1 .4-1 1Z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M17 9a4.2 4.2 0 0 1 0 6M19.4 6.6a7.6 7.6 0 0 1 0 10.8"/></symbol>
+  <symbol id="i-muted" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9.5v5c0 .6.4 1 1 1h3l4.3 3.6c.6.5 1.7.1 1.7-.8V5.7c0-.9-1.1-1.3-1.7-.8L8 8.5H5c-.6 0-1 .4-1 1Z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="m17 9.5 5 5m0-5-5 5"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20.3 10.6 19C5.6 14.5 2.5 11.7 2.5 8.2 2.5 5.4 4.7 3.3 7.4 3.3c1.6 0 3.4.8 4.6 2.2 1.2-1.4 3-2.2 4.6-2.2 2.7 0 4.9 2.1 4.9 4.9 0 3.5-3.1 6.3-8.1 10.8L12 20.3Z"/></symbol>
+  <symbol id="i-like" viewBox="0 0 24 24"><path fill="currentColor" d="M2.5 10.5c0-.6.4-1 1-1h2.4c.6 0 1 .4 1 1v9c0 .6-.4 1-1 1H3.5c-.6 0-1-.4-1-1v-9Zm6 9.2V10l4.1-6.3c.4-.6 1.1-.9 1.8-.6 1 .4 1.4 1.4 1.1 2.4l-1 3.6h4.9c1.4 0 2.4 1.3 2 2.7l-1.9 7c-.3 1-1.1 1.6-2.1 1.6H9.4c-.5 0-.9-.3-.9-.7Z"/></symbol>
+  <symbol id="i-fire" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.4c.3 3-1.2 4.6-2.6 6.2-1.3 1.5-2.6 3-2.4 5.4-1-.6-1.6-1.6-1.8-2.9C4.6 12.6 4 14.5 4 16c0 3.6 3.6 6.2 8 6.2s8-2.6 8-6.6c0-4.7-3.6-6.6-4.1-10.5-1 .9-1.5 2.1-1.6 3.4-.4-2.7-.9-4.5-1.7-6.1Zm-.4 11.2c.6 1.9 2.7 2.4 2.7 4.6 0 1.6-1.3 2.7-2.9 2.7s-2.9-1.1-2.9-2.6c0-1.9 1.9-2.6 3.1-4.7Z"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path fill="currentColor" d="M9 17.5V6.3c0-.5.3-.9.8-1l9-2c.6-.1 1.2.3 1.2 1V16a3 3 0 1 1-2-2.8V8.2l-7 1.6v8.7A3 3 0 1 1 9 17.5Z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 20.1 21 12.8c.7-.3.7-1.3 0-1.6L3.4 3.9c-.7-.3-1.4.4-1.2 1.1L4.3 11l8.2 1-8.2 1-2.1 6c-.2.7.5 1.4 1.2 1.1Z"/></symbol>
+</svg>
+<div class="backdrop" id="backdrop" aria-hidden="true"></div>
+
+<header class="top" id="top"><a class="brand" href="../"><img src="../img/icon.png" alt="" width="30" height="30">flow</a></header>
+
+<main class="center" id="landing">
+  <section class="card" id="ok">
+    <div class="eyebrow">ПРИГЛАШЕНИЕ В КОМНАТУ</div>
+    <h1 id="room-title">Тебя зовут в комнату Flow</h1>
+    <div class="room" id="room-info" hidden>
+      <img class="room-cover" id="room-cover" alt="" referrerpolicy="no-referrer" hidden>
+      <div class="room-cover ph" id="room-cover-ph"><svg class="ic" aria-hidden="true"><use href="#i-note"/></svg></div>
+      <div class="room-meta">
+        <p class="room-now" id="room-now"></p>
+        <p class="room-owner" id="room-owner"></p>
+        <p class="room-online" id="room-online"></p>
+      </div>
+    </div>
+    <p class="muted" id="room-lead">Музыка в комнате играет у всех одновременно. Слушай прямо в браузере — можно без регистрации, достаточно ника, — или открой комнату в приложении.</p>
+    <p class="code-row">Код комнаты <b id="code">······</b></p>
+    <p class="error" id="room-missing" role="alert" hidden>Комнаты с таким кодом нет. Может, её удалили — попроси новую ссылку.</p>
+
+    <div class="actions" id="actions">
+      <button class="button primary" id="listen" type="button" hidden>Слушать в браузере</button>
+      <a class="button" id="open" href="flow://">Открыть во Flow</a>
+      <a class="text-link" href="https://flowww.space/">Скачать Flow</a>
+    </div>
+
+    <form class="auth" id="auth" novalidate hidden>
+      <div class="guest-fields" id="guest-fields">
+        <h2 class="auth-title">Слушать без регистрации</h2>
+        <label>Ник<input name="nick" autocomplete="nickname" placeholder="Как тебя покажут в комнате" maxlength="24" spellcheck="false"></label>
+        <p class="note">Ник увидят все в комнате, рядом с ним будет пометка «гость». Слушать и писать в чат можно сразу, а добавлять свои треки — только с аккаунтом Flow.</p>
+      </div>
+      <div class="account-fields" id="account-fields" hidden>
+        <div class="tabs" role="tablist" aria-label="Вход или новый аккаунт">
+          <button type="button" role="tab" id="tab-login" aria-selected="true">Войти</button>
+          <button type="button" role="tab" id="tab-register" aria-selected="false">Создать аккаунт</button>
+        </div>
+        <label>Тег<input name="username" autocomplete="username" placeholder="Твой тег, без @" maxlength="25" autocapitalize="off" spellcheck="false" required></label>
+        <label id="display-field" hidden><span>Имя <span class="opt">— необязательно</span></span><input name="display" autocomplete="nickname" maxlength="32" placeholder="Как тебя покажут в комнате"></label>
+        <label>Пароль<input name="password" type="password" autocomplete="current-password" maxlength="128" required></label>
+      </div>
+      <p class="error" id="auth-error" role="alert" hidden></p>
+      <button class="button primary" type="submit" id="auth-submit">Слушать</button>
+      <p class="note" id="register-hint" hidden>Это обычный аккаунт Flow — потом с ним можно войти в приложение.</p>
+      <p class="auth-switch" id="to-account">Есть аккаунт Flow? <button type="button" class="text-link" id="go-login">Войти</button> или <button type="button" class="text-link" id="go-register">создать аккаунт</button></p>
+      <p class="auth-switch" id="to-guest" hidden><button type="button" class="text-link" id="go-guest">Зайти без регистрации, только с ником</button></p>
+      <div class="auth-links"><button type="button" class="text-link" id="auth-cancel">Назад</button><a class="text-link" id="forgot" href="../reset/" hidden>Забыл пароль?</a></div>
+    </form>
+
+    <p class="hint" id="hint">Есть приложение? Нажми «Открыть во Flow» — оно зайдёт в комнату само. Не открылось — запусти Flow, открой «Комнаты» → «Войти по коду» и введи код.<br>
+      Скачать сразу: <a href="https://api.flowww.space/download/Flow-Setup.exe">Windows</a>,
+      <a href="https://api.flowww.space/download/Flow-mac-arm64.zip">Mac (Apple Silicon)</a>,
+      <a href="https://api.flowww.space/download/Flow-mac-x64.zip">Mac (Intel)</a>.
+      Запасные ссылки (GitHub): <a href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe">Windows</a>,
+      <a href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip">Mac (Apple Silicon)</a>,
+      <a href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-x64.zip">Mac (Intel)</a>.</p>
+  </section>
+
+  <section class="card" id="gone" hidden>
+    <h1 id="gone-text">Не получилось зайти в комнату</h1>
+    <p class="muted" id="gone-sub">Можно вернуться к приглашению и попробовать снова.</p>
+    <button class="button primary" type="button" id="gone-back">Вернуться</button>
+  </section>
+
+  <section class="card" id="bad" hidden>
+    <h1>В ссылке нет кода комнаты</h1>
+    <p class="muted">Попроси друга скопировать приглашение ещё раз.</p>
+    <a class="button" href="https://flowww.space/">На сайт Flow</a>
+  </section>
+</main>
+
+<div class="listen" id="listen-view" hidden>
+  <header class="bar">
+    <a class="brand" href="../" target="_blank" rel="noopener" title="Сайт Flow откроется в новой вкладке, музыка здесь не прервётся"><img src="../img/icon.png" alt="" width="28" height="28">flow</a>
+    <div class="bar-room"><span class="bar-name" id="l-room-name"></span><span class="bar-code" id="l-code"></span></div>
+    <span class="net" id="net" role="status" hidden>Нет связи — переподключаюсь</span>
+    <div class="bar-actions">
+      <button class="button small" type="button" id="leave">Выйти из комнаты</button>
+      <button class="button small ghost" type="button" id="logout">Выйти из аккаунта</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel now" aria-label="Сейчас играет">
+      <div class="cover-box">
+        <img class="cover" id="np-cover" alt="" referrerpolicy="no-referrer" hidden>
+        <div class="cover ph" id="np-cover-ph"><svg class="ic" aria-hidden="true"><use href="#i-note"/></svg></div>
+      </div>
+      <div class="np">
+        <div class="np-badges"><span class="sync wait" id="sync" hidden></span><span class="badge" id="np-alt" hidden>другая версия этого трека</span></div>
+        <h1 class="np-title" id="np-title">Подключаюсь к комнате…</h1>
+        <p class="np-artists" id="np-artists"></p>
+        <div class="progress" aria-hidden="true"><div class="track"><div class="fill" id="np-fill"></div></div>
+          <div class="times"><span id="np-pos">0:00</span><span id="np-dur">0:00</span></div></div>
+        <p class="np-msg" id="np-msg" role="status" hidden></p>
+        <div class="controls">
+          <div class="ctl" id="ctl" hidden>
+            <button class="round big" type="button" id="toggle" aria-label="Пауза"></button>
+            <button class="round" type="button" id="next" aria-label="Дальше" title="Дальше"><svg class="ic" aria-hidden="true"><use href="#i-next"/></svg></button>
+          </div>
+          <div class="volume">
+            <button class="round" type="button" id="mute" aria-label="Выключить звук"></button>
+            <input type="range" id="volume" min="0" max="100" step="1" value="80" aria-label="Громкость">
+          </div>
+        </div>
+        <p class="note" id="ctl-note" hidden>Ставить на паузу, включать и переключать треки может владелец комнаты и те, кому он разрешил. Ползунок громкости меняет звук только у тебя.</p>
+      </div>
+    </section>
+
+    <section class="panel chat-panel" aria-label="Чат комнаты">
+      <h2>Чат</h2>
+      <div class="chat" id="chat"></div>
+      <form class="chat-form" id="chat-form" autocomplete="off">
+        <input id="chat-input" maxlength="500" placeholder="Написать в чат" aria-label="Сообщение в чат" enterkeyhint="send">
+        <button class="round send" type="submit" aria-label="Отправить"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button>
+      </form>
+    </section>
+
+    <div class="side">
+      <section class="panel"><h2>Дальше</h2><ol class="upnext" id="upnext"></ol></section>
+      <section class="panel"><h2>В комнате <span class="count" id="m-count"></span></h2><ul class="members" id="members"></ul></section>
+      <section class="panel cta">
+        <h2>Слушать удобнее в приложении Flow</h2>
+        <p>В приложении можно добавлять треки, искать музыку, слушать Яндекс Музыку с подпиской Плюс и не держать вкладку открытой.</p>
+        <a class="button small" href="https://flowww.space/" target="_blank" rel="noopener">Скачать Flow</a>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>

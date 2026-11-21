@@ -1,8 +1,1567 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flow переехал на flowww.space</title>
-<link rel="canonical" href="https://flowww.space/">
-<meta http-equiv="refresh" content="0; url=https://flowww.space/">
-<script>location.replace("https://flowww.space/" + location.search + location.hash);</script>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0a0a12;color:#f4f4f8;font:16px/1.5 system-ui,sans-serif}a{color:#c4b5fd}</style>
-</head><body><p>Сайт Flow теперь здесь: <a href="https://flowww.space/">https://flowww.space/</a></p></body></html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow — слушать музыку с друзьями одновременно</title>
+<meta name="description" content="Flow — бесплатный музыкальный плеер для Windows и Mac. Создай комнату, отправь друзьям код или ссылку, и трек будет играть у всех одновременно: каждый слушает на своём компьютере, а Flow держит воспроизведение синхронным.">
+<meta property="og:title" content="Flow — слушать музыку с друзьями одновременно">
+<meta property="og:description" content="Комната по коду или ссылке, общая очередь, чат и синхронное воспроизведение на компьютере у каждого участника. Windows и Mac.">
+<meta property="og:image" content="https://flowww.space/img/room.webp?v=20261101b">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#09080e">
+<link rel="icon" href="img/icon.png">
+<link rel="stylesheet" href="onest.css">
+<style>
+@font-face { font-family: Syne; src: url(fonts/Syne.ttf); font-weight: 400 800; font-display: swap; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-cyrillic-ext.woff2) format('woff2'); unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Unbounded; font-weight: 400 800; font-display: swap; src: url(fonts/unbounded-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root {
+  --bg: #09080e;
+  --bg-subtle: #110e1a;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --surface-card: #14111f;
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --surface-border-strong: rgba(255, 255, 255, 0.16);
+  --text: #f8fafc;
+  --muted: #9ba1b5;
+  --dim: #656b82;
+  --accent: #9d6fff;
+  --accent-light: #c4a1ff;
+  --accent-glow: rgba(157, 111, 255, 0.45);
+  --cyan: #38bdf8;
+  --cyan-glow: rgba(56, 189, 248, 0.35);
+  --peach: #fb923c;
+  --emerald: #34d399;
+  --pink: #f43f5e;
+  --nav-bg: rgba(9, 8, 14, 0.82);
+  --lane-h: #72bc9c;
+  --lane-l: #b88ddc;
+  --lane-m: #ecb269;
+}
+
+@property --sx { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --sy { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --sr { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; color-scheme: dark; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.65 Onest, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* фоновые световые акценты */
+.ambient-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.18;
+}
+.glow-1 { top: -10vw; left: 15vw; width: 45vw; height: 45vw; background: #8b5cf6; }
+.glow-2 { top: 25vw; right: -5vw; width: 38vw; height: 38vw; background: #06b6d4; opacity: 0.12; }
+.glow-3 { top: 75vw; left: -10vw; width: 50vw; height: 50vw; background: #ec4899; opacity: 0.08; }
+.glow-4 { top: 130vw; right: 10vw; width: 42vw; height: 42vw; background: #6366f1; opacity: 0.12; }
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; height: auto; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+
+.wrap { width: min(1200px, 100% - 40px); margin: 0 auto; position: relative; z-index: 1; }
+
+h1, h2, h3 { font-family: Unbounded, Onest, sans-serif; text-wrap: balance; }
+h1 { font-size: clamp(38px, 5.8vw, 74px); line-height: 1.05; letter-spacing: -.038em; font-weight: 600; }
+h2 { font-size: clamp(28px, 3.8vw, 48px); line-height: 1.12; letter-spacing: -.03em; font-weight: 600; }
+h3 { font-size: 20px; line-height: 1.35; font-weight: 600; letter-spacing: -.015em; }
+
+/* Навигация */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--surface-border);
+  transition: border-color .2s;
+}
+nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 24px; }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 800 24px/1 Syne, sans-serif;
+  letter-spacing: -.04em;
+}
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(157, 111, 255, .35);
+  transition: transform .2s ease;
+}
+.logo:hover .logo-icon { transform: scale(1.05); }
+.nav-links { display: flex; align-items: center; gap: 32px; font-size: 15px; font-weight: 500; color: var(--muted); }
+.nav-links a { transition: color .2s; }
+.nav-links a:hover { color: var(--text); }
+.nav-actions { display: flex; align-items: center; gap: 14px; }
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+  transition: all .2s cubic-bezier(.16, 1, .3, 1);
+  text-decoration: none;
+}
+.btn svg { width: 19px; height: 19px; flex-shrink: 0; }
+.btn-primary {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  filter: brightness(1.05);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border-strong);
+  color: var(--text);
+  backdrop-filter: blur(12px);
+}
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+.btn-glass:active { transform: translateY(0); }
+
+.btn-sm { height: 42px; padding: 0 18px; font-size: 14px; border-radius: 12px; }
+
+/* Бейджи */
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #d8b4fe;
+  backdrop-filter: blur(8px);
+}
+.pill-badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
+}
+
+/* Первый экран */
+.hero {
+  padding: 72px 0 32px;
+  text-align: center;
+}
+.hero-header {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.hero-title {
+  margin-top: 24px;
+}
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 30%, #c4b5fd 75%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-lead {
+  font-size: clamp(17px, 2vw, 20px);
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 720px;
+  margin: 24px auto 0;
+  text-wrap: balance;
+}
+.hero-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+.hero-meta {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-meta a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.hero-meta a:hover { color: var(--text); }
+
+/* Интерактивное демо синхронизации */
+.demo-card {
+  margin-top: 54px;
+  border-radius: 24px;
+  background: rgba(20, 17, 31, 0.85);
+  border: 1px solid var(--surface-border-strong);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 80px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  text-align: left;
+}
+.demo-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.02);
+}
+.demo-play-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.demo-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 18px var(--accent-glow);
+  transition: transform .15s, background .2s;
+  flex-shrink: 0;
+}
+.demo-play-btn:hover { transform: scale(1.06); background: var(--accent-light); }
+.demo-play-btn svg { width: 18px; height: 18px; fill: currentColor; }
+.demo-play-btn .i-play { display: none; margin-left: 2px; }
+.demo-card.paused .demo-play-btn .i-play { display: block; }
+.demo-card.paused .demo-play-btn .i-pause { display: none; }
+
+.demo-track-info { min-width: 0; }
+.demo-track-title { font-weight: 600; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.demo-track-meta { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.demo-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.demo-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.demo-sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dim);
+  transition: all .3s;
+}
+.demo-card.synced .demo-sync-dot {
+  background: var(--emerald);
+  box-shadow: 0 0 10px var(--emerald);
+}
+.demo-card.synced .demo-sync-badge { color: #a7f3d0; }
+
+.demo-code-pill {
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+.demo-code-pill b {
+  width: 28px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font: 700 14px Onest, sans-serif;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--surface-border);
+  transition: all .25s ease;
+}
+.demo-code-pill:hover b { border-color: rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.08); }
+.demo-code-pill.on b {
+  color: #ff4766;
+  border-color: rgba(255, 71, 102, 0.7);
+  box-shadow: 0 0 16px rgba(255, 71, 102, 0.4), inset 0 0 8px rgba(255, 71, 102, 0.2);
+  animation: hop .5s cubic-bezier(.3, 1.6, .5, 1) both;
+}
+.demo-code-pill.on b:nth-child(2) { animation-delay: .06s; }
+.demo-code-pill.on b:nth-child(3) { animation-delay: .12s; }
+.demo-code-pill.on b:nth-child(4) { animation-delay: .18s; }
+.demo-code-pill.on b:nth-child(5) { animation-delay: .24s; }
+.demo-code-pill.on b:nth-child(6) { animation-delay: .3s; }
+@keyframes hop { 40% { transform: translateY(-8px) scale(1.08); } }
+
+.lanes-canvas-area {
+  position: relative;
+  padding: 8px 0;
+  cursor: grab;
+  touch-action: pan-y;
+}
+.lanes-canvas-area.drag { cursor: grabbing; }
+
+.lane-row {
+  display: grid;
+  grid-template-columns: 190px 1fr 100px;
+  align-items: center;
+  height: 74px;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.lane-row:last-child { border-bottom: none; }
+.lane-user {
+  padding-left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.lane-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #0d0a14;
+  background: var(--c);
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.lane-user b { display: block; font-weight: 600; font-size: 14.5px; line-height: 1.25; }
+.lane-user span { color: var(--muted); font-size: 12.5px; }
+
+.lane-row canvas { width: 100%; height: 52px; display: block; }
+.lane-offset {
+  padding-right: 24px;
+  text-align: right;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  transition: color .3s;
+}
+.lane-offset.far { color: var(--pink); }
+
+.sync-needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: #a855f7;
+  pointer-events: none;
+  box-shadow: 0 0 16px #a855f7, 0 0 30px rgba(168, 85, 247, 0.6);
+  z-index: 10;
+}
+.sync-needle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -5px;
+  border: 6px solid transparent;
+  border-top-color: #c084fc;
+}
+
+.demo-footer-hint {
+  padding: 14px 24px;
+  border-top: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.015);
+  font-size: 13.5px;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.demo-footer-hint svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--accent); }
+
+/* Витрина приложения (macOS Mockup) */
+.showcase-sec {
+  padding-top: 140px;
+  text-align: center;
+}
+.sec-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.sec-lead {
+  color: var(--muted);
+  font-size: 18px;
+  margin: 16px auto 0;
+  max-width: 640px;
+}
+
+/* Переключатель вкладок витрины */
+.showcase-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--surface-border);
+  margin-top: 40px;
+  backdrop-filter: blur(16px);
+  max-width: 100%;
+  overflow-x: auto;
+}
+.showcase-tab {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.showcase-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+.showcase-tab.active {
+  background: var(--surface-border-strong);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Окно macOS */
+.mac-window {
+  margin-top: 36px;
+  border-radius: 20px;
+  background: #110e1a;
+  border: 1px solid var(--surface-border-strong);
+  box-shadow: 0 40px 120px -30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+.mac-titlebar {
+  height: 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  position: relative;
+}
+.mac-dots {
+  display: flex;
+  gap: 8px;
+}
+.mac-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+.mac-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mac-title .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
+}
+
+.mac-viewport {
+  position: relative;
+  background: #0d0a14;
+}
+.mac-screen {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.mac-screen.hidden {
+  display: none;
+}
+
+/* Подсветка элементов витрины */
+.spotlight-overlay {
+  position: absolute;
+  left: 50%; top: 50%; width: 0; height: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  opacity: 0;
+  /* затемняем всё вокруг выделенного блока, сам блок обводим светом */
+  box-shadow: 0 0 0 200vmax rgba(9, 8, 14, 0.74), 0 0 0 2px rgba(196, 161, 255, 0.95), 0 0 30px 6px rgba(157, 111, 255, 0.55);
+  transition: opacity .35s, left .45s cubic-bezier(.16, 1, .3, 1), top .45s cubic-bezier(.16, 1, .3, 1), width .45s cubic-bezier(.16, 1, .3, 1), height .45s cubic-bezier(.16, 1, .3, 1);
+}
+.mac-viewport { overflow: hidden; }
+.mac-viewport.lit .spotlight-overlay { opacity: 1; }
+
+.features-hotspots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 36px;
+  text-align: left;
+}
+.hotspot-card {
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  transition: all .2s;
+  cursor: pointer;
+}
+.hotspot-card:hover, .hotspot-card.active {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+}
+.hotspot-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hotspot-card h4::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dim);
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.hotspot-card.active h4::before, .hotspot-card:hover h4::before {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+.hotspot-card p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+/* Сетка возможностей (Bento Grid) */
+.bento-sec {
+  padding-top: 140px;
+}
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+  margin-top: 48px;
+}
+.bento-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all .25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.bento-card:hover {
+  border-color: var(--surface-border-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.6);
+}
+
+.card-span-7 { grid-column: span 7; }
+.card-span-5 { grid-column: span 5; }
+.card-span-4 { grid-column: span 4; }
+.card-span-6 { grid-column: span 6; }
+.card-span-8 { grid-column: span 8; }
+
+.bento-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  display: grid;
+  place-items: center;
+  color: var(--accent-light);
+  margin-bottom: 24px;
+}
+.bento-icon-box svg { width: 22px; height: 22px; }
+
+.bento-card h3 { font-size: 22px; margin-bottom: 12px; }
+.bento-card p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+.bento-visual {
+  margin-top: 28px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+}
+.bento-visual img { width: 100%; height: auto; display: block; }
+
+/* Сравнение Flow vs Discord/Telegram */
+.compare-sec {
+  padding-top: 130px;
+}
+.compare-table-wrap {
+  margin-top: 44px;
+  border-radius: 24px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+}
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.compare-table th, .compare-table td {
+  padding: 18px 26px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.compare-table th {
+  font-family: Unbounded, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+.compare-table th.flow-col, .compare-table td.flow-col {
+  background: rgba(168, 85, 247, 0.05);
+  color: #fff;
+  font-weight: 600;
+}
+.compare-table td { font-size: 15px; color: var(--muted); }
+.compare-table tr:last-child td { border-bottom: none; }
+.status-good { color: var(--emerald); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.status-bad { color: var(--dim); display: inline-flex; align-items: center; gap: 6px; }
+
+/* Как начать (Шаги) */
+.steps-sec {
+  padding-top: 140px;
+}
+.steps-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 48px;
+  counter-reset: s;
+}
+.step-card {
+  counter-increment: s;
+  padding: 36px 30px;
+  border-radius: 24px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  position: relative;
+  transition: all .2s;
+}
+.step-card:hover { border-color: var(--surface-border-strong); transform: translateY(-3px); }
+.step-number {
+  font: 700 52px/1 Unbounded, sans-serif;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(168, 85, 247, 0.5);
+  margin-bottom: 20px;
+}
+.step-card h3 { font-size: 20px; margin-bottom: 10px; }
+.step-card p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+/* Системные уведомления */
+.install-hints {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.install-box {
+  padding: 24px 26px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--surface-border);
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.install-box svg { width: 24px; height: 24px; color: var(--accent); flex-shrink: 0; margin-top: 3px; }
+.install-box b { color: var(--text); font-weight: 600; }
+.install-box p { font-size: 14px; color: var(--muted); line-height: 1.55; margin-top: 4px; }
+.code-inline {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--surface-border);
+  font-family: monospace;
+  font-size: 12.5px;
+  color: #d8b4fe;
+  user-select: all;
+  margin-top: 6px;
+}
+
+/* FAQ аккордеон */
+.faq-sec {
+  padding-top: 140px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.faq-list {
+  margin-top: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.faq-item {
+  border-radius: 18px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.faq-item[open] { border-color: rgba(168, 85, 247, 0.35); }
+.faq-summary {
+  padding: 20px 24px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+.faq-summary svg {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform .25s ease;
+  flex-shrink: 0;
+}
+.faq-item[open] .faq-summary svg { transform: rotate(180deg); color: var(--accent); }
+.faq-content {
+  padding: 0 24px 22px;
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+/* Финальный призыв к действию */
+.final-cta-sec {
+  padding: 160px 0 60px;
+  text-align: center;
+}
+.final-cta-card {
+  padding: 72px 40px;
+  border-radius: 32px;
+  background: radial-gradient(ellipse at 50% -20%, rgba(139, 92, 246, 0.35), var(--surface-card) 70%);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  box-shadow: 0 40px 100px -30px rgba(124, 58, 237, 0.25);
+  max-width: 960px;
+  margin: 0 auto;
+}
+.final-cta-card h2 { font-size: clamp(30px, 4vw, 52px); }
+.final-cta-card p { font-size: 18px; color: var(--muted); margin: 18px auto 0; max-width: 600px; }
+
+/* Подвал */
+footer {
+  border-top: 1px solid var(--surface-border);
+  padding: 40px 0 60px;
+  font-size: 14px;
+  color: var(--dim);
+}
+footer .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+footer a:hover { color: var(--text); }
+.footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+/* Адаптивность */
+@media (max-width: 1040px) {
+  .features-hotspots { grid-template-columns: repeat(2, 1fr); }
+  .bento-grid { grid-template-columns: 1fr; }
+  .card-span-7, .card-span-5, .card-span-4, .card-span-6, .card-span-8 { grid-column: span 1; }
+  .install-hints { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero { padding-top: 48px; }
+  .lane-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 48px;
+    height: auto;
+    padding: 10px 0 6px;
+  }
+  .lane-user { padding-left: 16px; }
+  .lane-offset { padding-right: 16px; grid-row: 1; grid-column: 2; }
+  .lane-row canvas { grid-column: 1 / -1; height: 48px; margin-top: 4px; }
+  .demo-topbar { flex-wrap: wrap; }
+  .demo-status-wrap { width: 100%; justify-content: space-between; }
+  .features-hotspots { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .final-cta-card { padding: 48px 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .demo-code-pill.on b { animation: none; }
+  .btn-primary:hover, .btn-glass:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient-glow" aria-hidden="true">
+  <div class="glow-orb glow-1"></div>
+  <div class="glow-orb glow-2"></div>
+  <div class="glow-orb glow-3"></div>
+  <div class="glow-orb glow-4"></div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">
+      <img src="img/icon.png" alt="Flow" class="logo-icon">
+      flow
+    </a>
+    <div class="nav-links">
+      <a href="#showcase">Интерфейс</a>
+      <a href="#sync">Синхронизация</a>
+      <a href="#features">Функции</a>
+      <a href="#start">Как начать</a>
+      <a href="#faq">Вопросы</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-primary btn-sm" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe" data-os-link>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>
+        <span data-os-text>Скачать Flow</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- Первый экран -->
+  <header class="hero">
+    <div class="hero-header">
+      <div class="pill-badge">
+        <span class="dot"></span>
+        <span>Flow 0.7.6: личная подборка «Мой флоу», «Найти похожее», трек в медиапанели Windows и Mac</span>
+      </div>
+      <h1 class="hero-title">
+        Слушай музыку с друзьями —<br>
+        <span class="gradient-text">она играет у всех одновременно</span>
+      </h1>
+      <p class="hero-lead">
+        Flow — музыкальный плеер для Windows и Mac. Создай комнату, отправь друзьям код или ссылку, и все услышат один и тот же момент трека. Музыка играет на компьютере у каждого, а сервер Flow только следит, чтобы все были на одной секунде. Очередь общая: треки добавляешь ты и те, кому ты это разрешишь.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe" data-download-win>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.557L10.231 4.5v6.924H3V5.557zm0 7.02h7.231V19.5L3 18.443v-5.866zm8.175-8.22L21 3v8.424h-9.825V4.357zm9.825 8.22V21l-9.825-1.357v-6.866H21z"/></svg>
+          Скачать для Windows
+        </a>
+        <a class="btn btn-glass" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip" data-download-mac>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 3.5c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.64 1.35-.57.65-1.07 1.72-.94 2.74 1 .08 2.03-.49 2.65-1.24z"/></svg>
+          Скачать для Mac
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <span>Версия 0.7.6 • Бесплатно • Windows 10/11 и macOS 12+</span>
+        <span>•</span>
+        <span>Mac Intel: <a href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-x64.zip">отдельная сборка</a></span>
+        <span>•</span>
+        <span>Запасная ссылка (GitHub): <a href="https://api.flowww.space/download/Flow-Setup.exe">Windows</a>, <a href="https://api.flowww.space/download/Flow-mac-arm64.zip">Mac</a></span>
+      </div>
+    </div>
+
+    <!-- Интерактивная демонстрация синхронизации -->
+    <div class="demo-card paused" id="demo" aria-label="Интерактивное демо синхронизации">
+      <div class="demo-topbar">
+        <div class="demo-play-wrap">
+          <button class="demo-play-btn" id="play" aria-label="Пауза у всех">
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z"/></svg>
+          </button>
+          <div class="demo-track-info">
+            <div class="demo-track-title">One More Time — Daft Punk</div>
+            <div class="demo-track-meta"><span id="time">0:00</span> из 5:20 • играет в комнате</div>
+          </div>
+        </div>
+
+        <div class="demo-status-wrap">
+          <div class="demo-sync-badge">
+            <span class="demo-sync-dot"></span>
+            <span id="state">Синхронизировано</span>
+          </div>
+          <div class="demo-code-pill" id="egg" title="Код комнаты: нажми для пасхалки">
+            <b>F</b><b>L</b><b>O</b><b>W</b><b>0</b><b>1</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="lanes-canvas-area" id="lanes">
+        <div class="lane-row" style="--c: var(--lane-h)">
+          <div class="lane-user"><span class="lane-avatar">H</span><div><b>Hyrax</b><span>Сочи · 18 мс</span></div></div>
+          <canvas></canvas>
+          <div class="lane-offset">±0 мс</div>
+        </div>
+        <div class="lane-row" style="--c: var(--lane-l)">
+          <div class="lane-user"><span class="lane-avatar">L</span><div><b>Lucrix</b><span>Уфа · 12 мс</span></div></div>
+          <canvas></canvas>
+          <div class="lane-offset">±0 мс</div>
+        </div>
+        <div class="lane-row" style="--c: var(--lane-m)">
+          <div class="lane-user"><span class="lane-avatar">M</span><div><b>Miles</b><span>Москва · 8 мс</span></div></div>
+          <canvas></canvas>
+          <div class="lane-offset">±0 мс</div>
+        </div>
+        <div class="sync-needle" id="needle"></div>
+      </div>
+
+      <div class="demo-footer-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+        <span>Это демо. Перетащи дорожку мышью или кликни в любое место: позиция сменится у всех троих слушателей, и их дорожки снова сойдутся. Так же работает перемотка в настоящей комнате.</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Витрина обновленного интерфейса -->
+  <section class="showcase-sec" id="showcase">
+    <span class="sec-tag">Новый интерфейс</span>
+    <h2>Как выглядит Flow</h2>
+    <p class="sec-lead">Скриншоты из приложения: главная с рекомендациями «Мой flow», комната с чатом, эквалайзер и большой плеер. Наведи на карточку под окном, чтобы увидеть, где это на экране.</p>
+
+    <div class="showcase-tabs" role="tablist">
+      <button class="showcase-tab active" data-screen="home" role="tab" aria-selected="true">Главная и «Мой flow»</button>
+      <button class="showcase-tab" data-screen="room" role="tab" aria-selected="false">Комната с друзьями</button>
+      <button class="showcase-tab" data-screen="equalizer" role="tab" aria-selected="false">Эквалайзер на 10 полос</button>
+      <button class="showcase-tab" data-screen="player" role="tab" aria-selected="false">Большой плеер</button>
+    </div>
+
+    <div class="mac-window">
+      <div class="mac-titlebar">
+        <div class="mac-dots">
+          <span class="mac-dot dot-red"></span>
+          <span class="mac-dot dot-yellow"></span>
+          <span class="mac-dot dot-green"></span>
+        </div>
+        <div class="mac-title" id="window-title">
+          <span class="status-dot"></span>
+          <span>Flow — Ночной эфир</span>
+        </div>
+      </div>
+
+      <div class="mac-viewport" id="viewport">
+        <img src="img/home.webp?v=20261101b" alt="Главная страница Flow" class="mac-screen" id="screen-home" width="1440" height="920">
+        <img src="img/room.webp?v=20261101b" alt="Комната совместного прослушивания Flow" class="mac-screen hidden" id="screen-room" width="1440" height="920">
+        <img src="img/equalizer.webp?v=20261101b" alt="10-полосный эквалайзер Flow" class="mac-screen hidden" id="screen-equalizer" width="1440" height="920">
+        <img src="img/player.webp?v=20261101b" alt="Большой плеер Flow" class="mac-screen hidden" id="screen-player" width="1440" height="920">
+        <div class="spotlight-overlay" id="spotlight"></div>
+      </div>
+    </div>
+
+    <div class="features-hotspots" id="hotspots">
+      <div class="hotspot-card active" data-screen="home" data-x="31.9" data-y="22.5" data-w="13.8" data-h="5.9">
+        <h4>Мой flow</h4>
+        <p>Подбирает треки, похожие на те, что ты слушаешь, и добавляет их в очередь, когда она заканчивается. Включается кнопкой на главной.</p>
+      </div>
+      <div class="hotspot-card" data-screen="home" data-x="77.5" data-y="9.1" data-w="21.8" data-h="33.3">
+        <h4>Что играет дальше</h4>
+        <p>Следующие пять треков видны прямо на главной, рядом с текущим. Вся очередь открывается кнопкой «Показать все».</p>
+      </div>
+      <div class="hotspot-card" data-screen="room" data-x="71.5" data-y="22.6" data-w="26.5" data-h="72.9">
+        <h4>Чат комнаты</h4>
+        <p>Переписка рядом с очередью. У каждого трека в очереди видно, кто его добавил.</p>
+      </div>
+      <div class="hotspot-card" data-screen="equalizer" data-x="60.1" data-y="43.6" data-w="34.5" data-h="41.4">
+        <h4>Эквалайзер</h4>
+        <p>10 полос от 32 Гц до 16 кГц, предусиление и пресеты: Поп, Рок, Электроника, Вокал. Настройка меняет только твой звук, остальным в комнате она не мешает.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bento Grid ключевых фич -->
+  <section class="bento-sec" id="features">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+      <span class="sec-tag">Как это работает</span>
+      <h2>Что умеет Flow</h2>
+      <p class="sec-lead">Музыка не идёт через звонок. Каждый участник слушает трек на своём компьютере, а Flow следит, чтобы у всех играл один и тот же момент.</p>
+    </div>
+
+    <div class="bento-grid">
+      <!-- Карточка 1: Субсэмпловая синхронизация -->
+      <article class="bento-card card-span-7" id="sync">
+        <div>
+          <div class="bento-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3>Все слышат один и тот же момент</h3>
+          <p>Flow сверяет часы твоего компьютера с сервером по серии пингов и запускает трек с учётом задержки звуковой карты. Пока трек играет, плеер четыре раза в секунду проверяет позицию: небольшое отставание выравнивает незаметным изменением скорости, большое — перескоком на нужное место. Обычно расхождение между участниками — от нескольких до пары десятков миллисекунд, текущее значение видно в приложении. Для Bluetooth-наушников есть ручная поправка задержки.</p>
+        </div>
+        <div class="bento-visual">
+          <img src="img/crop-sync.webp?v=20261101b" alt="Индикатор синхронизации комнат Flow" loading="lazy">
+        </div>
+      </article>
+
+      <!-- Карточка 2: Динамическая палитра -->
+      <article class="bento-card card-span-5">
+        <div>
+          <div class="bento-icon-box" style="background: rgba(251, 146, 60, 0.12); color: var(--peach);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          </div>
+          <h3>Цвета под обложку</h3>
+          <p>С темой «Обложка» акценты, свечение и фон интерфейса берут цвета из обложки текущего трека и плавно меняются, когда трек сменяется. Если переливы не нужны, выбери постоянную палитру в настройках.</p>
+        </div>
+        <div class="bento-visual">
+          <img src="img/crop-wave.webp?v=20261101b" alt="Плавная палитра и волна Flow" loading="lazy">
+        </div>
+      </article>
+
+      <!-- Карточка 3: Каталог и лайки -->
+      <article class="bento-card card-span-4">
+        <div>
+          <div class="bento-icon-box" style="background: rgba(244, 63, 94, 0.12); color: var(--pink);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </div>
+          <h3>Лайки из Яндекс Музыки и SoundCloud</h3>
+          <p>Подключи свой аккаунт, и лайкнутые треки появятся во Flow. При каждом запуске Flow сам подтягивает новые лайки. Свои плейлисты можно собирать прямо во Flow.</p>
+        </div>
+        <div class="bento-visual">
+          <img src="img/crop-playlist.webp?v=20261101b" alt="Плейлисты и очередь" loading="lazy">
+        </div>
+      </article>
+
+      <!-- Карточка 4: Глобальный поиск и клавиши -->
+      <article class="bento-card card-span-4">
+        <div>
+          <div class="bento-icon-box" style="background: rgba(56, 189, 248, 0.12); color: var(--cyan);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </div>
+          <h3>Поиск по Ctrl+K</h3>
+          <p>Нажми <code>Ctrl+K</code> (на Mac — <code>Cmd+K</code>) на любом экране и начни вводить название. Flow ищет сразу в нескольких источниках, а Enter добавляет первый найденный трек в очередь.</p>
+        </div>
+        <div style="margin-top: 24px; padding: 18px; border-radius: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--surface-border);">
+          <div style="font-size: 13px; color: var(--dim); margin-bottom: 6px;">Медиаклавиши:</div>
+          <div style="font-size: 14.5px; font-weight: 600; color: var(--text);">Пауза, следующий и предыдущий трек работают, даже когда Flow свёрнут.</div>
+        </div>
+      </article>
+
+      <!-- Карточка 5: Приватные и публичные комнаты -->
+      <article class="bento-card card-span-4">
+        <div>
+          <div class="bento-icon-box" style="background: rgba(52, 211, 153, 0.12); color: var(--emerald);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Приватные и публичные комнаты</h3>
+          <p>Новая комната приватная: зайти можно только по коду или ссылке-приглашению. Публичную комнату видят все в разделе «Комнаты». Владелец решает, кому можно менять плейлист и переключать треки, и может выгнать участника.</p>
+        </div>
+        <div class="bento-visual">
+          <img src="img/crop-chat.webp?v=20261101b" alt="Чат участников комнаты" loading="lazy">
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- Сравнение с голосовыми звонками -->
+  <section class="compare-sec">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+      <span class="sec-tag">Сравнение</span>
+      <h2>Почему не слушать через Discord или Telegram?</h2>
+      <p class="sec-lead">В звонке музыку включает один человек, а остальные слышат её через голосовой канал: сжатой под речь и с задержкой. Во Flow трек играет у каждого на компьютере, звонок для этого не нужен.</p>
+    </div>
+
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Параметр</th>
+            <th>Discord / Telegram стрим</th>
+            <th class="flow-col">Flow десктоп</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Качество аудио</td>
+            <td><span class="status-bad">Пережимается голосовым кодеком</span></td>
+            <td class="flow-col"><span class="status-good">✓ Как в источнике: звук не проходит через звонок</span></td>
+          </tr>
+          <tr>
+            <td>Разница между слушателями</td>
+            <td><span class="status-bad">У каждого своя задержка звонка, бывают обрывы</span></td>
+            <td class="flow-col"><span class="status-good">✓ Обычно от нескольких до пары десятков мс</span></td>
+          </tr>
+          <tr>
+            <td>Что передаёт сервер</td>
+            <td>Сам звук, в реальном времени</td>
+            <td class="flow-col"><span class="status-good">✓ Только время воспроизведения, трек каждый загружает сам</span></td>
+          </tr>
+          <tr>
+            <td>Общая очередь треков</td>
+            <td>Музыку включает тот, кто транслирует</td>
+            <td class="flow-col"><span class="status-good">✓ До 500 треков (с Premium — до 1500), добавляет каждый, кому разрешил владелец</span></td>
+          </tr>
+          <tr>
+            <td>Эквалайзер</td>
+            <td>Нет</td>
+            <td class="flow-col"><span class="status-good">✓ 10 полос, у каждого свой</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Шаги: Как начать -->
+  <section class="steps-sec" id="start">
+    <div style="text-align: center; max-width: 680px; margin: 0 auto;">
+      <span class="sec-tag">Как начать</span>
+      <h2>Три шага до общей музыки</h2>
+      <p class="sec-lead">Для аккаунта нужны только логин и пароль. Почта и телефон не нужны.</p>
+    </div>
+
+    <ol class="steps-grid">
+      <li class="step-card">
+        <div class="step-number">01</div>
+        <h3>Скачай Flow</h3>
+        <p>На Windows запусти установщик. На Mac распакуй архив и перетащи Flow в «Программы». Дальше Flow сам проверяет и ставит обновления.</p>
+      </li>
+      <li class="step-card">
+        <div class="step-number">02</div>
+        <h3>Создай комнату</h3>
+        <p>Открой раздел «Комнаты» и нажми «Создать». Отправь друзьям код из 6 символов (например, <code>K7M2QX</code>) или ссылку-приглашение: по ссылке Flow откроется сразу в твоей комнате.</p>
+      </li>
+      <li class="step-card">
+        <div class="step-number">03</div>
+        <h3>Включи музыку</h3>
+        <p>Добавь треки в очередь, и они заиграют у всех одновременно. Порядок меняется перетаскиванием, есть перемешивание и повтор. Друзьям можно разрешить добавлять и переключать треки, а обсуждать музыку — в чате комнаты.</p>
+      </li>
+    </ol>
+
+    <div class="install-hints">
+      <div class="install-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        <div>
+          <b>Если Windows показывает предупреждение:</b>
+          <p>У Flow пока нет платной цифровой подписи Microsoft, поэтому Windows предупреждает о неизвестном издателе. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>.</p>
+        </div>
+      </div>
+      <div class="install-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        <div>
+          <b>Если macOS сообщает о неподтверждённом разработчике:</b>
+          <p>Открой <b>Системные настройки → Конфиденциальность и безопасность</b> и нажми <b>«Всё равно открыть»</b>. Если macOS пишет, что приложение повреждено, введи в Терминале команду:</p>
+          <div class="code-inline">xattr -cr /Applications/Flow.app</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-sec" id="faq">
+    <div style="text-align: center;">
+      <span class="sec-tag">Вопросы и ответы</span>
+      <h2>Частые вопросы</h2>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary class="faq-summary">
+          <span>Как у всех получается играть одно и то же?</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="faq-content">
+          Сервер Flow не передаёт звук. Он хранит общую очередь и время, когда начался текущий трек. Каждый участник загружает трек сам — из Яндекс Музыки через свой аккаунт или из бесплатных источников, — а плеер запускает его в нужный момент по часам, сверенным с сервером. Если кто-то начинает отставать или спешить, Flow незаметно подстраивает скорость или перескакивает на нужное место. Текущее расхождение с комнатой видно в приложении.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">
+          <span>Нужна ли подписка Яндекс Плюс?</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="faq-content">
+          Нет. Без подписки Flow ищет и играет музыку из SoundCloud, Audius и Jamendo. Если подключить Яндекс Музыку с Плюсом, появится и её каталог. Когда Плюс подключён у всех в комнате, треки играют из Яндекса. Если не у всех, Flow включает тот же трек из бесплатного источника, чтобы его слышала вся комната. Трек, который нашёлся только в Яндексе, услышат только участники с Плюсом.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">
+          <span>Работает ли Flow без друзей?</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="faq-content">
+          Да. Без комнаты это обычный плеер: поиск, плейлисты, лайки из подключённых сервисов, рекомендации «Мой flow», эквалайзер, медиаклавиши и статус «Слушает Flow» в Discord.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">
+          <span>Сколько человек может находиться в одной комнате?</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="faq-content">
+          В обычной комнате до 4 человек, если её создал пользователь с Premium — до 10. В очереди до 500 треков, с Premium — до 1500. Новые участники сначала только слушают: владелец отдельно каждому разрешает менять плейлист и переключать треки, а может и выгнать из комнаты.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-summary">
+          <span>Как позвать друга по ссылке?</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="faq-content">
+          В комнате нажми кнопку «Скопировать ссылку-приглашение» (значок цепочки) — скопируется ссылка вида <code>flowww.space/join?K7M2QX</code>. Отправь её в любой мессенджер. Если у друга установлен Flow, по ссылке он откроется сразу в твоей комнате. Если нет — страница покажет код комнаты и ссылку на скачивание.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- Финальный блок скачивания -->
+  <section class="final-cta-sec">
+    <div class="final-cta-card">
+      <h2>Скачай Flow и позови друзей</h2>
+      <p>Flow бесплатный. Установи его, создай комнату и отправь друзьям код или ссылку-приглашение.</p>
+      <div class="hero-cta" style="margin-top: 36px;">
+        <a class="btn btn-primary" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-Setup.exe" data-download-win>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.557L10.231 4.5v6.924H3V5.557zm0 7.02h7.231V19.5L3 18.443v-5.866zm8.175-8.22L21 3v8.424h-9.825V4.357zm9.825 8.22V21l-9.825-1.357v-6.866H21z"/></svg>
+          Скачать для Windows (.exe)
+        </a>
+        <a class="btn btn-glass" href="https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip" data-download-mac>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 3.5c.62-.75 1.04-1.8 0.93-2.85-.9.04-1.99.6-2.64 1.35-.57.65-1.07 1.72-.94 2.74 1 .08 2.03-.49 2.65-1.24z"/></svg>
+          Скачать для Mac (Apple Silicon)
+        </a>
+      </div>
+      <div style="margin-top: 20px; font-size: 13.5px; color: var(--dim);">
+        Версия 0.7.6 • Если основная ссылка не открывается, скачай с GitHub: <a href="https://api.flowww.space/download/Flow-Setup.exe" style="color:var(--muted);text-decoration:underline">Windows</a> или <a href="https://api.flowww.space/download/Flow-mac-arm64.zip" style="color:var(--muted);text-decoration:underline">macOS (Apple Silicon)</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Подвал -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-badge">
+        <img src="img/icon.png" alt="Flow" width="22" height="22" style="border-radius:6px">
+        <span><b>Flow 0.7.6</b> — плеер для совместного прослушивания музыки на Windows 10/11 и macOS 12+</span>
+      </div>
+      <div>
+        <span>Шрифты <a href="https://fonts.google.com/specimen/Unbounded" target="_blank" rel="noopener">Unbounded</a> и <a href="https://fonts.google.com/specimen/Onest" target="_blank" rel="noopener">Onest</a> (OFL)</span>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<script>
+// ---------- Определение ОС ----------
+const isMac = /Macintosh|Mac OS X/.test(navigator.userAgent);
+if (isMac) {
+  document.querySelectorAll("[data-os-link]").forEach(a => a.href = "https://github.com/Lucrix1337/flow/releases/latest/download/Flow-mac-arm64.zip");
+  document.querySelectorAll("[data-os-text]").forEach(el => el.textContent = "Скачать для Mac");
+  const winBtn = document.querySelector("[data-download-win]");
+  const macBtn = document.querySelector("[data-download-mac]");
+  if (winBtn && macBtn) {
+    // Делаем кнопку Mac основной для пользователей Mac
+    winBtn.classList.remove("btn-primary");
+    winBtn.classList.add("btn-glass");
+    macBtn.classList.remove("btn-glass");
+    macBtn.classList.add("btn-primary");
+  }
+}
+
+// ---------- Живое интерактивное демо синхронизации ----------
+const demo = document.getElementById("demo");
+const lanesEl = document.getElementById("lanes");
+const needle = document.getElementById("needle");
+const lanes = [...lanesEl.querySelectorAll(".lane-row")].map(el => ({
+  el,
+  cv: el.querySelector("canvas"),
+  off: el.querySelector(".lane-offset"),
+  color: getComputedStyle(el).getPropertyValue("--c").trim() || "#a855f7",
+  drift: 0,
+}));
+
+const LEN = 320, BPM = 123, BAR = 60 / 123 / 4;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = 47, playing = !reduce, last = performance.now(), synced = false;
+
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function amp(s) {
+  if (s < 0 || s > LEN) return 0;
+  const i = Math.floor(s / BAR + 1e-6);
+  const kick = Math.exp(-(i % 4) * .9);
+  const section = s < 12 ? .45 : (s > 150 && s < 182) ? .55 : 1;
+  return Math.min(1, (.2 + .62 * kick + .22 * hash(i)) * section);
+}
+function pxPerSec() { return innerWidth < 680 ? 34 : 64; }
+
+function draw() {
+  const pps = pxPerSec(), dpr = window.devicePixelRatio || 1;
+  for (const L of lanes) {
+    const w = L.cv.clientWidth, h = L.cv.clientHeight;
+    if (L.cv.width !== w * dpr) { L.cv.width = w * dpr; L.cv.height = h * dpr; }
+    const g = L.cv.getContext("2d");
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, w, h);
+    const center = w / 2, now = t + L.drift, step = BAR * pps, bw = Math.max(2.5, step * .5);
+    const first = Math.floor((now - center / pps) / BAR);
+    for (let i = first; ; i++) {
+      const s = i * BAR, x = center + (s - now) * pps;
+      if (x > w) break;
+      const a = amp(s); if (!a) continue;
+      const bh = Math.max(3, a * (h - 10));
+      g.globalAlpha = s <= now ? 1 : .28;
+      g.fillStyle = L.color;
+      g.beginPath();
+      g.roundRect(x, (h - bh) / 2, bw, bh, bw / 2);
+      g.fill();
+    }
+  }
+
+  const r = lanes[0].cv.getBoundingClientRect(), box = lanesEl.getBoundingClientRect();
+  needle.style.left = (r.left - box.left + r.width / 2) + "px";
+  const m = Math.floor(t / 60), sec = Math.floor(t % 60);
+  document.getElementById("time").textContent = m + ":" + String(sec).padStart(2, "0");
+}
+
+function showOffsets() {
+  for (const L of lanes) {
+    const ms = Math.round(L.drift * 1000);
+    L.off.textContent = (ms > 0 ? "+" : ms < 0 ? "−" : "±") + Math.abs(ms) + " мс";
+    L.off.classList.toggle("far", Math.abs(ms) > 30);
+  }
+}
+
+function settle(dt) {
+  for (const [k, L] of lanes.entries()) {
+    const target = synced ? (Math.sin(performance.now() / 900 + k * 2.1) * .002) : L.drift;
+    L.drift += (target - L.drift) * Math.min(1, dt * 3.4);
+  }
+}
+
+let animFrameId;
+function frame(ts) {
+  const dt = Math.min(.1, (ts - last) / 1000);
+  last = ts;
+  if (playing && !dragging) {
+    t += dt;
+    if (t > LEN) t = 0;
+  }
+  settle(dt);
+  draw();
+  showOffsets();
+  animFrameId = requestAnimationFrame(frame);
+}
+
+function startDemo() {
+  if (reduce) {
+    synced = true;
+    demo.classList.add("synced");
+    document.getElementById("state").textContent = "Синхронизировано";
+  } else {
+    lanes[0].drift = 0;
+    lanes[1].drift = -.28;
+    lanes[2].drift = .19;
+    setTimeout(() => {
+      synced = true;
+      demo.classList.add("synced");
+      document.getElementById("state").textContent = "Синхронизировано";
+    }, 850);
+  }
+  demo.classList.toggle("paused", !playing);
+  requestAnimationFrame(ts => { last = ts; frame(ts); });
+}
+
+const playBtn = document.getElementById("play");
+function setPlaying(p) {
+  playing = p;
+  demo.classList.toggle("paused", !p);
+  playBtn.setAttribute("aria-label", p ? "Пауза у всех" : "Играть у всех");
+}
+playBtn.addEventListener("click", () => setPlaying(!playing));
+
+// Перемотка кликом или перетаскиванием
+let dragging = false, downX = 0, downT = 0, moved = false;
+lanesEl.addEventListener("pointerdown", e => {
+  dragging = true;
+  moved = false;
+  downX = e.clientX;
+  downT = t;
+  lanesEl.setPointerCapture(e.pointerId);
+  lanesEl.classList.add("drag");
+});
+lanesEl.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const dx = e.clientX - downX;
+  if (Math.abs(dx) > 3) moved = true;
+  t = Math.max(0, Math.min(LEN, downT - dx / pxPerSec()));
+});
+function release(e) {
+  if (!dragging) return;
+  dragging = false;
+  lanesEl.classList.remove("drag");
+  if (!moved && e.type === "pointerup") {
+    const r = lanes[0].cv.getBoundingClientRect();
+    if (e.clientX > r.left) {
+      t = Math.max(0, Math.min(LEN, t + (e.clientX - (r.left + r.width / 2)) / pxPerSec()));
+    }
+  }
+  if (synced) {
+    lanes.forEach((L, k) => {
+      if (k) L.drift = (k === 1 ? 1 : -1) * (.035 + Math.random() * .04);
+    });
+  }
+}
+lanesEl.addEventListener("pointerup", release);
+lanesEl.addEventListener("pointercancel", release);
+
+startDemo();
+
+// ---------- Переключение экранов витрины ----------
+const showcaseTabs = document.querySelectorAll(".showcase-tab");
+const macScreens = document.querySelectorAll(".mac-screen");
+const windowTitle = document.getElementById("window-title");
+const viewport = document.getElementById("viewport");
+const spotlight = document.getElementById("spotlight");
+const hotspotCards = document.querySelectorAll(".hotspot-card");
+
+const screenTitles = {
+  home: "Flow — Главная и рекомендации",
+  room: "Flow — Комната с друзьями",
+  equalizer: "Flow — Эквалайзер на 10 полос",
+  player: "Flow — Плеер: Murder In My Mind"
+};
+
+function switchScreen(screenId) {
+  showcaseTabs.forEach(tab => {
+    const match = tab.dataset.screen === screenId;
+    tab.classList.toggle("active", match);
+    tab.setAttribute("aria-selected", match ? "true" : "false");
+  });
+
+  macScreens.forEach(img => {
+    img.classList.toggle("hidden", img.id !== `screen-${screenId}`);
+  });
+
+  if (windowTitle && screenTitles[screenId]) {
+    windowTitle.querySelector("span:last-child").textContent = screenTitles[screenId];
+  }
+
+  // Сброс спотлайта
+  viewport.classList.remove("lit");
+}
+
+showcaseTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    switchScreen(tab.dataset.screen);
+  });
+});
+
+// ---------- Интерактивный спотлайт на фичах ----------
+function highlightFeature(card) {
+  hotspotCards.forEach(c => c.classList.toggle("active", c === card));
+  if (!card) {
+    viewport.classList.remove("lit");
+    return;
+  }
+  const targetScreen = card.dataset.screen;
+  if (targetScreen) {
+    switchScreen(targetScreen);
+  }
+  // рамка ровно по блоку на скрине: проценты сняты с приложения при съёмке (siteshots/capture.js → hotspots.json)
+  const { x = 40, y = 40, w = 20, h = 20 } = card.dataset;
+  Object.assign(spotlight.style, { left: x + "%", top: y + "%", width: w + "%", height: h + "%" });
+  viewport.classList.add("lit");
+}
+
+hotspotCards.forEach(card => {
+  card.addEventListener("mouseenter", () => highlightFeature(card));
+  card.addEventListener("click", () => highlightFeature(card));
+});
+document.getElementById("hotspots").addEventListener("mouseleave", () => {
+  viewport.classList.remove("lit");
+  hotspotCards.forEach(c => c.classList.remove("active"));
+});
+
+// ---------- Пасхалка: Код комнаты ----------
+const egg = document.getElementById("egg");
+if (egg) {
+  egg.addEventListener("click", () => {
+    egg.classList.remove("on");
+    void egg.offsetWidth;
+    egg.classList.add("on");
+  });
+}
+</script>
+</body>
+</html>
